@@ -14,6 +14,8 @@
 	};
 
 
+	var lockTimeout;
+
 
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
@@ -54,7 +56,6 @@
 			this.trigger('imu', imu_data);
 
 		}else{
-			console.log(data);
 			this.trigger(data.type, data)
 		}
 	};
@@ -128,6 +129,25 @@
 		},
 		stop : function(){
 			this.socket.close();
+			return this;
+		},
+
+		lock : function(){
+			this.isLocked = true;
+			this.trigger('lock');
+			return this;
+		},
+
+		unlock : function(timeout){
+			var self = this;
+			clearTimeout(lockTimeout);
+			if(timeout){
+				lockTimeout = setTimeout(function(){
+					self.lock();
+				}, timeout);
+			}
+			this.isLocked = false;
+			this.trigger('unlock');
 			return this;
 		},
 
