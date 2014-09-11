@@ -1,0 +1,148 @@
+<html>
+	<head>
+		<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+		<script src='http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js'></script>
+		<script src='http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+		<script src='./myo.js'></script>
+
+	</head>
+	<body>
+		<title>Myo.js</title>
+		Myo.js Test
+
+
+		<div id='peak'>ghj</div>
+		<div id='lastpeak'>ghj</div>
+		<h3>Gyroscope</h3>
+		<div id='gyroscope' style="width:800px;height:150px;"></div>
+		<h3>Accelerometer</h3>
+		<div id='accelerometer' style="width:800px;height:150px;"></div>
+		<h3>Orientation</h3>
+		<div id='orientation' style="width:800px;height:150px;"></div>
+
+
+
+		<script>
+
+		Myo.start();
+
+		console.log(Myo.history.gyroscope);
+
+
+		var getData = function(measurement){
+
+			var result = {};
+
+			//console.log(measurement);
+
+			_.each(measurement, function(data, index){
+				_.each(data, function(val, axis){
+					result[axis] = result[axis] || {label : axis, data : []};
+					result[axis].data.push([index, val])
+				});
+			});
+			return _.values(result);
+		}
+
+
+
+		var plots = {
+			gyroscope : $.plot("#gyroscope", getData(Myo.history.gyroscope), {
+				series: {shadowSize: 0},
+				//xaxis: { show: false},
+				yaxis : {
+					min : -400,
+					max : 400
+				}
+			}),
+
+			accelerometer : $.plot("#accelerometer", getData(Myo.history.accelerometer), {
+				series: {shadowSize: 0},
+				//xaxis: { show: false},
+				yaxis : {
+					min : -1.5,
+					max : 1.5
+				}
+			}),
+			orientation : $.plot("#orientation", getData(Myo.history.orientation), {
+				series: {shadowSize: 0},
+				//xaxis: { show: false},
+				yaxis : {
+					min : -1,
+					max : 1
+				}
+			}),
+
+
+		}
+
+		var temp = 0
+
+/*
+
+		setTimeout(function(){
+			_.each(plots, function(plot, type){
+
+				plot.setupGrid();
+			});
+		}, 1000);
+*/
+
+			var update = _.throttle(function(){
+				//if(temp > 10) return;
+				_.each(plots, function(plot, type){
+					var data = [getData(Myo.history[type])[0], _.map(peaks2, function(val, index){
+						return [index, val];
+					})];
+					data = getData(Myo.history[type])
+					//console.log(data);
+					plot.setData(data);
+					plot.draw();
+				});
+
+				temp++
+			}, 30);
+
+
+
+			Myo.on('pose', function(pose){
+				console.log(pose);
+			//	document.getElementById('pose').innerHTML = pose;
+
+				if(pose == 'spread'){
+					Myo.zeroOrientation();
+					Myo.requestBluetooth();
+					//console.log('working');
+					//peaks=[];
+				}
+			});
+
+
+			Myo.on('orientation', function(data){
+				//pushData(data, 'orientation');
+			});
+
+			Myo.on('accelerometer', function(data){
+				//pushData(data, 'accelerometer');
+			});
+
+			Myo.on('gyroscope', function(data){
+				//pushData(data, 'gyroscope');
+				//update();
+			});
+
+			Myo.on('heartbeat', function(){
+				update();
+			})
+
+
+
+
+
+
+			var max =0;
+			var min = 0;
+
+		</script>
+	</body>
+</html>
