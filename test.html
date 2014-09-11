@@ -129,16 +129,18 @@
 	var update = _.throttle(function(){
 		_.each(plots, function(plot, type){
 			data = getData(myoHistory[type])
-			//plot.setData(data);
-			//plot.draw();
+			plot.setData(data);
+			plot.draw();
 		});
 
 	}, 30);
 
 
 
-	Myo.on('pose', function(pose){
+	Myo.on('pose', function(pose, edge){
 		//document.getElementById('pose').innerHTML = pose;
+
+		console.log(pose, edge);
 
 		if(pose == 'spread'){
 			Myo.zeroOrientation();

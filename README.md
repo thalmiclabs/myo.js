@@ -13,9 +13,9 @@ wave_left
 
 ## Events
 
-**trigger** &nbsp; `object.trigger(event, [arg1, arg2, ...])` <br>
 
-
+bluetooth_strength
+ready
 
 imu
 gyroscope

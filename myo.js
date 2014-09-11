@@ -21,13 +21,15 @@
 		var data = JSON.parse(msg.data)[1];
 
 		if(data.type == 'pose'){
-
-			//handle unknown
 			var poseName = eventTable[data.pose];
-			//this.data.pose = poseName;
-			this.trigger(poseName);
-			this.trigger('pose', poseName);
 
+			if(lastPose != 'rest' && poseName == 'rest'){
+				this.trigger(lastPose, false);
+				this.trigger('pose', lastPose, false);
+			}
+			lastPose = poseName;
+			this.trigger(poseName, true);
+			this.trigger('pose', poseName, true);
 		}else if(data.type =='orientation'){
 			lastOrientation = data.orientation;
 
@@ -55,14 +57,22 @@
 			this.trigger('gyroscope', imu_data.gyroscope);
 			this.trigger('imu', imu_data);
 
+
+		}else if(data.type =='arm_recognized'){
+			this.arm = data.arm;
+			this.x_direction = data.x_direction;
+			this.trigger('ready');
+		}else if(data.type =='rssi'){
+			this.trigger('bluetooth_strength', data.rssi);
 		}else{
+			console.log(data.type, data);
 			this.trigger(data.type, data)
 		}
 	};
 
 
 	var events = [];
-
+	var lastPose;
 
 
 
@@ -84,9 +94,10 @@
 
 
 		//_events : [],
-		trigger : function(eventName, args){
+		trigger : function(eventName){
+			var args = Array.prototype.slice.apply(arguments).slice(1);
 			events.map(function(event){
-				if(event.name == eventName || eventName == '*') event.fn(args);
+				if(event.name == eventName || eventName == '*') event.fn.apply(Myo, args);
 			});
 			return this;
 		},
