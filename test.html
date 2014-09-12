@@ -159,13 +159,24 @@
 	}, 30);
 
 
+	var filterPose = function(pose){
+		if(pose == 'rest') return;
+		console.log('YEAH', pose);
+		Myo.vibrate('short');
 
+	}
+
+
+	var poseHold;
 	Myo.on('pose', function(pose, edge){
 		if(Myo.isLocked) return;
-		//Myo.unlock(2000);
+		Myo.unlock(5000);
 
+		Myo.timer(edge, 200, function(){
+			filterPose(pose);
+		})
 
-		console.log(pose, edge);
+//		console.log(pose, edge);
 
 		if(pose == 'spread'){
 			Myo.zeroOrientation();
@@ -177,8 +188,7 @@
 
 
 	Myo.on('unlock', function(){
-		Myo.vibrate('short');
-		Myo.vibrate('short');
+		Myo.vibrate('short').vibrate('short');
 		console.log('unlocked');
 	})
 
@@ -189,13 +199,13 @@
 
 	var ttpHold;
 	Myo.on('thumb_to_pinky', function(edge){
-		if(edge) {
-			ttpHold = setTimeout(function(){
-				Myo.unlock(2000);
-			}, 500)
-		}else{
-			clearTimeout(ttpHold);
-		}
+		if(!Myo.isLocked) return;
+
+		if(edge) Myo.vibrate('short');
+
+		Myo.timer(edge, 500, function(){
+			Myo.unlock(2000);
+		});
 	});
 
 	Myo.on('double_tap', function(){

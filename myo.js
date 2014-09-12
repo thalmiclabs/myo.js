@@ -11,7 +11,31 @@
 	};
 
 
-	var lockTimeout, lastOrientation;
+	var lockTimeout, lastOrientation, lastPose, timerTO;
+
+
+	var emitPose = function(poseName){
+		if(lastPose != 'rest' && poseName == 'rest'){
+			this.trigger(lastPose, false);
+			this.trigger('pose', lastPose, false);
+			//handleWave(lastPose, false);
+		}
+		this.trigger(poseName, true);
+		this.trigger('pose', poseName, true);
+		//handleWave(poseName, true);
+	}
+
+	var handleWave = function(poseName, edge){
+		if(poseName == 'wave_in'){
+			var pose = ((Myo.arm == 'right') ? 'wave_left' : 'wave_right');
+			Myo.trigger(pose, edge);
+			Myo.trigger('pose', pose, edge);
+		}else if(poseName == 'wave_out'){
+			var pose = ((Myo.arm == 'right') ? 'wave_right' : 'wave_left')
+			Myo.trigger(pose, edge);
+			Myo.trigger('pose', pose, edge);
+		}
+	}
 
 
 	var handleMessage = function(msg){
@@ -20,13 +44,10 @@
 		if(data.type == 'pose'){
 			var poseName = eventTable[data.pose];
 
-			if(lastPose != 'rest' && poseName == 'rest'){
-				this.trigger(lastPose, false);
-				this.trigger('pose', lastPose, false);
-			}
+			emitPose.call(this, poseName);
+
+
 			lastPose = poseName;
-			this.trigger(poseName, true);
-			this.trigger('pose', poseName, true);
 		}else if(data.type =='orientation'){
 			if(!lastOrientation) this.offset = data.orientation;
 			lastOrientation = data.orientation;
@@ -70,7 +91,6 @@
 
 
 	var events = [];
-	var lastPose;
 
 
 
@@ -115,6 +135,14 @@
 				return result;
 			}, []);
 			return this;
+		},
+
+		timer : function(status, timeout, fn){
+			if(status){
+				timerTO = setTimeout(fn, timeout);
+			}else{
+				clearTimeout(timerTO)
+			}
 		},
 
 

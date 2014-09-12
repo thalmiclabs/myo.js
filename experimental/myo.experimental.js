@@ -3,7 +3,7 @@
 
 
 	//Busy Arm
-	Myo.options.armbusy_threshold = Myo.options.armbusy_threshold || 150;
+	Myo.options.armbusy_threshold = Myo.options.armbusy_threshold || 100;
 	Myo.options.armbusy_length =  Myo.options.armbusy_length || 30;
 
 	var armBusyArray = _.times(Myo.options.armbusy_length, function(){return 0});
