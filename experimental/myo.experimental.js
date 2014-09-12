@@ -3,19 +3,44 @@
 
 
 	//Busy Arm
-	Myo.options.armbusy_threshold = Myo.options.armbusy_threshold || 100;
+	Myo.options.armbusy_threshold = Myo.options.armbusy_threshold || 80;
 	Myo.options.armbusy_length =  Myo.options.armbusy_length || 30;
+
+
+	var old = 0;
 
 	var armBusyArray = _.times(Myo.options.armbusy_length, function(){return 0});
 	Myo.on('gyroscope', function(gyro){
 		armBusyArray = armBusyArray.slice(1);
 		armBusyArray.push(Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z));
 
-		Myo.ma = _.reduce(armBusyArray, function(r, v){
+		var movingAverage = _.reduce(armBusyArray, function(r, v){
+
+			//if(v > r) return v;
+			//return r;
 			return r + v;
 		}, 0)/Myo.options.armbusy_length;
 
-		Myo.armIsBusy = Myo.ma > Myo.options.armbusy_threshold;
+
+
+
+
+		var val = Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z);
+
+
+		var newVal = old + 0.1 * (val - old);
+
+		Myo.ema = newVal;
+
+		old = newVal;
+
+
+		Myo.armIsBusy = newVal > Myo.options.armbusy_threshold;
+
+
+
+		//Remove
+		Myo.ma = movingAverage;
 	});
 
 

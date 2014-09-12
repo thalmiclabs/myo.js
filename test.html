@@ -13,6 +13,7 @@
 
 		<div id='log'></div>
 		<div id='busy'></div>
+		<div id='ble'>---</div>
 
 
 		<div id='pan'>
@@ -22,11 +23,11 @@
 
 
 		<h3>Gyroscope</h3>
-		<div id='gyroscope' style="width:800px;height:150px;"></div>
+		<div id='gyroscope' style="width:800px;height:200px;"></div>
 		<h3>Accelerometer</h3>
-		<div id='accelerometer' style="width:800px;height:150px;"></div>
+		<div id='accelerometer' style="width:800px;height:200px;"></div>
 		<h3>Orientation</h3>
-		<div id='orientation' style="width:800px;height:150px;"></div>
+		<div id='orientation' style="width:800px;height:200px;"></div>
 
 <style>
 	#pan{
@@ -57,6 +58,8 @@
 		return result;
 	}
 
+
+
 	Myo.start();
 
 
@@ -74,19 +77,21 @@
 		pose : [],
 		orientation : makeHistory(myoHistory_size,{x:0,y:0,z:0,w:0}),
 		accelerometer : makeHistory(myoHistory_size,{x:0,y:0,z:0}),
-		gyroscope : makeHistory(myoHistory_size,{x:0,y:0,z:0, ma:0})
+		gyroscope : makeHistory(myoHistory_size,{x:0,y:0,z:0,  ema:0, ma:0,})
 	};
 
 
 
 
 	Myo.on('imu', function(data){
+
 		myoHistory.orientation.push(data.orientation);
 		myoHistory.orientation = myoHistory.orientation.slice(1);
 		myoHistory.accelerometer.push(data.accelerometer);
 		myoHistory.accelerometer = myoHistory.accelerometer.slice(1);
 
 
+		data.gyroscope.ema = Myo.ema;
 		data.gyroscope.ma = Myo.ma;
 
 		myoHistory.gyroscope.push(data.gyroscope);
@@ -159,8 +164,15 @@
 	}, 30);
 
 
+
+
+
+	Myo.on('bluetooth_strength', function(val){
+		$('#ble').html(val);
+	});
+
+
 	var filterPose = function(pose){
-		if(pose == 'rest') return;
 		console.log('YEAH', pose);
 		Myo.vibrate('short');
 
@@ -169,14 +181,15 @@
 
 	var poseHold;
 	Myo.on('pose', function(pose, edge){
-		if(Myo.isLocked) return;
-		Myo.unlock(5000);
+		if(Myo.isLocked || pose == 'rest') return;
+
+		Myo.unlock(edge ? 0 : 5000);
 
 		Myo.timer(edge, 200, function(){
 			filterPose(pose);
 		})
 
-//		console.log(pose, edge);
+		console.log(pose, edge);
 
 		if(pose == 'spread'){
 			Myo.zeroOrientation();
@@ -197,9 +210,8 @@
 		console.log('locked');
 	})
 
-	var ttpHold;
 	Myo.on('thumb_to_pinky', function(edge){
-		if(!Myo.isLocked) return;
+		if(!Myo.isLocked || Myo.armIsBusy) return;
 
 		if(edge) Myo.vibrate('short');
 

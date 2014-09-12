@@ -83,6 +83,8 @@
 			this.trigger('ready');
 		}else if(data.type =='rssi'){
 			this.trigger('bluetooth_strength', data.rssi);
+		}else if(data.type =='paired'){
+			this.connect_version = data.version.join('.');
 		}else{
 			console.log(data.type, data);
 			this.trigger(data.type, data)
@@ -153,7 +155,7 @@
 			var self = this;
 			if (!("WebSocket" in window)){
 				this.trigger('error', 'Sockets not supported');
-				return;
+				return this;
 			}
 			this.socket = new WebSocket(this.options.socket_url + this.options.api_version);
 			this.socket.onopen = function() {
