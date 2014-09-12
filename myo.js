@@ -11,7 +11,7 @@
 	};
 
 
-	var lockTimeout;
+	var lockTimeout, lastOrientation;
 
 
 	var handleMessage = function(msg){
@@ -28,6 +28,7 @@
 			this.trigger(poseName, true);
 			this.trigger('pose', poseName, true);
 		}else if(data.type =='orientation'){
+			if(!lastOrientation) this.offset = data.orientation;
 			lastOrientation = data.orientation;
 
 			var imu_data = {

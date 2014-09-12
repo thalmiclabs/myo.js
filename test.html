@@ -21,8 +21,6 @@
 		</div>
 
 
-		<div id='peak'>ghj</div>
-		<div id='lastpeak'>ghj</div>
 		<h3>Gyroscope</h3>
 		<div id='gyroscope' style="width:800px;height:150px;"></div>
 		<h3>Accelerometer</h3>
@@ -61,7 +59,11 @@
 
 	Myo.start();
 
+
 	Myo.isLocked = true;
+
+
+	//Myo.options.armbusy_threshold = 20;
 
 
 	var maGyro = 0;
@@ -75,11 +77,7 @@
 		gyroscope : makeHistory(myoHistory_size,{x:0,y:0,z:0, ma:0})
 	};
 
-	var genMA = function(gyro){
-		var t = (Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z))// / 3;
-		maGyro = (maGyro + t) / 2;
-		return maGyro;
-	}
+
 
 
 	Myo.on('imu', function(data){
