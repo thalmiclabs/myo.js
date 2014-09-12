@@ -1,16 +1,13 @@
-
 (function(){
 
-
-
 	var eventTable = {
-		'rest' : 'rest',
+		'rest'           : 'rest',
 		'fingers_spread' : 'spread',
-		'wave_in' : 'wave_in',
-		"wave_out" : 'wave_out',
-		'fist' : 'fist',
-		'thumb_to_pinky' : 'unlock',
-		'unknown' : 'myo_removed'
+		'wave_in'        : 'wave_in',
+		"wave_out"       : 'wave_out',
+		'fist'           : 'fist',
+		'thumb_to_pinky' : 'thumb_to_pinky',
+		'unknown'        : 'myo_removed'
 	};
 
 
@@ -78,6 +75,7 @@
 
 
 	Myo = {
+		isLocked : false,
 		options : {
 			api_version    : 1,
 			socket_url     : "ws://127.0.0.1:7204/myo/",
@@ -144,6 +142,7 @@
 		},
 
 		lock : function(){
+			if(this.isLocked) return true;
 			this.isLocked = true;
 			this.trigger('lock');
 			return this;
@@ -157,6 +156,7 @@
 					self.lock();
 				}, timeout);
 			}
+			if(!this.isLocked) return this;
 			this.isLocked = false;
 			this.trigger('unlock');
 			return this;

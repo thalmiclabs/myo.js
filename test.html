@@ -4,11 +4,15 @@
 		<script src='http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js'></script>
 		<script src='http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
 		<script src='./myo.js'></script>
+		<script src='./experimental/myo.experimental.js'></script>
 
 	</head>
 	<body>
 		<title>Myo.js</title>
 		Myo.js Test
+
+		<div id='log'></div>
+		<div id='busy'></div>
 
 
 		<div id='pan'>
@@ -57,14 +61,25 @@
 
 	Myo.start();
 
+	Myo.isLocked = true;
+
+
+	var maGyro = 0;
+
 
 	var myoHistory_size = 200;
 	var myoHistory = {
 		pose : [],
 		orientation : makeHistory(myoHistory_size,{x:0,y:0,z:0,w:0}),
 		accelerometer : makeHistory(myoHistory_size,{x:0,y:0,z:0}),
-		gyroscope : makeHistory(myoHistory_size,{x:0,y:0,z:0})
+		gyroscope : makeHistory(myoHistory_size,{x:0,y:0,z:0, ma:0})
 	};
+
+	var genMA = function(gyro){
+		var t = (Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z))// / 3;
+		maGyro = (maGyro + t) / 2;
+		return maGyro;
+	}
 
 
 	Myo.on('imu', function(data){
@@ -72,6 +87,10 @@
 		myoHistory.orientation = myoHistory.orientation.slice(1);
 		myoHistory.accelerometer.push(data.accelerometer);
 		myoHistory.accelerometer = myoHistory.accelerometer.slice(1);
+
+
+		data.gyroscope.ma = Myo.ma;
+
 		myoHistory.gyroscope.push(data.gyroscope);
 		myoHistory.gyroscope = myoHistory.gyroscope.slice(1);
 
@@ -79,6 +98,12 @@
 
 		$('#pan_x').height((50 -data.orientation.y * 100) + '%')
 		$('#pan_y').width(( data.orientation.z * 100  + 50) + '%')
+
+		if(Myo.armIsBusy){
+			$('#busy').html('BUSY');
+		}else{
+			$('#busy').html('----');
+		}
 
 
 		update();
@@ -138,7 +163,9 @@
 
 
 	Myo.on('pose', function(pose, edge){
-		//document.getElementById('pose').innerHTML = pose;
+		if(Myo.isLocked) return;
+		//Myo.unlock(2000);
+
 
 		console.log(pose, edge);
 
@@ -149,6 +176,38 @@
 			//peaks=[];
 		}
 	});
+
+
+	Myo.on('unlock', function(){
+		Myo.vibrate('short');
+		Myo.vibrate('short');
+		console.log('unlocked');
+	})
+
+	Myo.on('lock', function(){
+		Myo.vibrate('medium');
+		console.log('locked');
+	})
+
+	var ttpHold;
+	Myo.on('thumb_to_pinky', function(edge){
+		if(edge) {
+			ttpHold = setTimeout(function(){
+				Myo.unlock(2000);
+			}, 500)
+		}else{
+			clearTimeout(ttpHold);
+		}
+	});
+
+	Myo.on('double_tap', function(){
+		if(Myo.isLocked){
+			Myo.unlock()
+		}else{
+			Myo.lock();
+		}
+
+	})
 
 
 </script>
