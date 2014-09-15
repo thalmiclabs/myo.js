@@ -52,7 +52,7 @@ Off removes all listeners on an Myo for a given event name or id.
 Kicks off the library creating and listening to the websocket for data coming in from your Myo.
 
 **stop** &nbsp; `Myo.stop()` <br>
-
+Closes the web socket listening to the Myo.
 
 **zeroOrientation** &nbsp; `Myo.zeroOrientation()` <br>
 When called, however the Myo is orientated will now be the origin for the orientation.
@@ -74,12 +74,17 @@ Requests the connection strength of the Myo to be sent. Listen to the `'bluetoot
 	});
 	Myo.requestBluetoothStrength();
 
+**timer** &nbsp; `Myo.timer(on_off, duration, callback)` <br>
+Timer is useful for when you want a simple timeout for an action, such as holding a gesture for a period of time. `on_off` is a boolean that will create or disable the current timer. The `duration` parameter
+
 
 
 
 ## Options
-{
-	correct_myo_direction (true)
+correct_myo_direction
+pose_flicker_timeout
+emit_cardinal_waves
+
 
 
 
@@ -87,6 +92,6 @@ Requests the connection strength of the Myo to be sent. Listen to the `'bluetoot
 isLocked
 isPaired
 isConnected
-offset
+orientationOffset
 lastOrientation
 

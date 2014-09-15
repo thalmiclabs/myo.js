@@ -49,15 +49,15 @@
 
 			lastPose = poseName;
 		}else if(data.type =='orientation'){
-			if(!lastOrientation) this.offset = data.orientation;
+			if(!lastOrientation) this.orientationOffset = data.orientation;
 			lastOrientation = data.orientation;
 
 			var imu_data = {
 				orientation : {
-					x : data.orientation.x - this.offset.x,
-					y : data.orientation.y - this.offset.y,
-					z : data.orientation.z - this.offset.z,
-					w : data.orientation.w - this.offset.w
+					x : data.orientation.x - this.orientationOffset.x,
+					y : data.orientation.y - this.orientationOffset.y,
+					z : data.orientation.z - this.orientationOffset.z,
+					w : data.orientation.w - this.orientationOffset.w
 				},
 				accelerometer : {
 					x : data.accelerometer[0],
@@ -84,6 +84,7 @@
 		}else if(data.type =='rssi'){
 			this.trigger('bluetooth_strength', data.rssi);
 		}else if(data.type =='paired'){
+			this.myoId = data.myo;
 			this.connect_version = data.version.join('.');
 		}else{
 			console.log(data.type, data);
@@ -104,7 +105,7 @@
 			socket_url     : "ws://127.0.0.1:7204/myo/",
 			correct_myo_direction : true
 		},
-		offset : {
+		orientationOffset : {
 			x : 0,
 			y : 0,
 			z : 0,
@@ -194,7 +195,7 @@
 		},
 
 		zeroOrientation : function(){
-			this.offset = lastOrientation;
+			this.orientationOffset = lastOrientation;
 			return this;
 		},
 
@@ -202,7 +203,7 @@
 			intensity = intensity || 'medium';
 			this.socket.send(JSON.stringify(['command',{
 				"command": "vibrate",
-				"myo": 0,
+				"myo": this.myoId,
 				"type": intensity
 			}]));
 			return this;
@@ -211,7 +212,7 @@
 		requestBluetooth : function(){
 			this.socket.send(JSON.stringify(['command',{
 				"command": "request_rssi",
-				"myo": 0
+				"myo": this.myoId
 			}]));
 			return this;
 		},

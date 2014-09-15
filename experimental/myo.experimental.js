@@ -2,56 +2,39 @@
 (function(){
 
 
-	//Busy Arm
+	/**
+	 * Busy Arm Detection
+	 */
 	Myo.options.armbusy_threshold = Myo.options.armbusy_threshold || 80;
-	Myo.options.armbusy_length =  Myo.options.armbusy_length || 30;
-
-
-	var old = 0;
-
-	var armBusyArray = _.times(Myo.options.armbusy_length, function(){return 0});
+	Myo.armBusyData = 0;
+	var ema_alpha = 0.1;
 	Myo.on('gyroscope', function(gyro){
-		armBusyArray = armBusyArray.slice(1);
-		armBusyArray.push(Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z));
-
-		var movingAverage = _.reduce(armBusyArray, function(r, v){
-
-			//if(v > r) return v;
-			//return r;
-			return r + v;
-		}, 0)/Myo.options.armbusy_length;
-
-
-
-
-
-		var val = Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z);
-
-
-		var newVal = old + 0.1 * (val - old);
-
-		Myo.ema = newVal;
-
-		old = newVal;
-
-
-		Myo.armIsBusy = newVal > Myo.options.armbusy_threshold;
-
-
-
-		//Remove
-		Myo.ma = movingAverage;
+		var ema = Myo.armBusyData + ema_alpha * (Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z) - Myo.armBusyData);
+		var busy = ema > Myo.options.armbusy_threshold;
+		if(busy !== Myo.armIsBusy){
+			Myo.trigger(busy ? 'arm_busy' : 'arm_rest');
+		}
+		Myo.armIsBusy = busy;
+		Myo.armBusyData = ema;
 	});
 
 
 
-	//Double Tap
-
-	Myo.options.doubleTap_minTime = Myo.options.doubleTap_minTime || 100;
-	Myo.options.doubleTap_maxTime = Myo.options.doubleTap_maxTime || 300;
-	Myo.options.doubleTap_threshold = Myo.options.doubleTap_threshold || 0.9;
+	//Wave up and Wave down
 
 
+
+	//Nudge
+
+	//Dynamic Gestures
+
+
+	/**
+	 * Double Tap
+	 */
+	Myo.options.doubleTap = Myo.options.doubleTap || {};
+	Myo.options.doubleTap.time = Myo.options.doubleTap.time || [100, 300];
+	Myo.options.doubleTap.threshold = Myo.options.doubleTap.threshold || 0.9;
 	var last_y = 0;
 	var last_z = 0;
 	var last_tap;
@@ -62,10 +45,10 @@
 		last_y = y;
 		last_z = z;
 
-		if(delta > Myo.options.doubleTap_threshold){
+		if(delta > Myo.options.doubleTap.threshold){
 			if(last_tap){
 				var diff = _.now() - last_tap;
-				if(diff > Myo.options.doubleTap_minTime && diff < Myo.options.doubleTap_maxTime && !Myo.armIsBusy){
+				if(diff > Myo.options.doubleTap.time[0] && diff < Myo.options.doubleTap.time[1] && !Myo.armIsBusy){
 					Myo.trigger('double_tap');
 				}
 			}
