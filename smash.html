@@ -1,0 +1,148 @@
+<html>
+	<head>
+		<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+		<script src='http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js'></script>
+		<script src='http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+		<script src='./myo.js'></script>
+		<script src='./experimental/myo.experimental.js'></script>
+
+	</head>
+	<body>
+		<title>SMASH TEST</title>
+		Myo.js Test
+
+		<div id='pan'>
+			<div id='pan_x'></div>
+			<div id='pan_y'></div>
+
+			<div id='thing'>PUNCH!</div>
+		</div>
+		<div id='pose'></div>
+
+<style>
+	#pan{
+		border : 1px solid black;
+		width : 500px;
+		height : 500px;
+		position:relative;
+	}
+	#pan_x{
+		position : absolute;
+		border-bottom : 1px solid black;
+		width : 100%;
+	}
+	#pan_y{
+		position : absolute;
+		border-right : 1px solid black;
+		height : 100%;
+	}
+	.images img{
+		width : 100px;
+		display: none;
+	}
+	#thing{
+		display: none;
+		position: absolute;
+		width : 50px;
+		height : 50px;
+		border-radius: 5em;
+		border : 1px solid black;
+	}
+</style>
+
+<script>
+	Myo.start();
+	Myo.lock();
+
+	var loc_x, loc_y, lock = false
+
+	var his = [0,0,0];
+
+	hasPeak = function(){
+		return his[0] > his[1] && his[1] < his[2];
+	}
+
+
+	Myo.on('imu', function(data){
+
+		//lock = Math.abs(data.accelerometer.x) > 0.5
+
+
+		if(!lock){
+			loc_x = (50 -data.orientation.y * 100);
+			loc_y = ( data.orientation.z * 100  + 50);
+			$('#pan_x').height(loc_x + '%');
+			$('#pan_y').width( loc_y + '%');
+		}
+
+		his.push(data.gyroscope.z);
+		his = his.slice(1);
+
+		if(hasPeak() && data.gyroscope.z < -300 && smashHold){
+			showThing('SMASH');
+		}
+
+		if(hasPeak() && data.gyroscope.z < -100) console.log('dsfgdfg');
+
+
+		//if(data.accelerometer.z > data.accelerometer.y + 150) showThing('PUNCH');
+
+	});
+
+	showThing = function(text){
+
+		console.log(loc_x, loc_y);
+
+		$('#thing').show().css({
+			top  : loc_x * 5 -25,
+			left : loc_y * 5 -25
+		}).html(text)
+
+	}
+
+
+
+	var smashHold;
+	Myo.on('pose', function(pose, edge){
+		if(edge) $('#pose').html(pose);
+
+		if(pose == 'fist' || pose == 'thumb_to_pinky'){
+			smashHold = edge;
+		}
+	});
+
+
+	Myo.on('unlock', function(){
+		Myo.vibrate('short').vibrate('short');
+		console.log('unlocked');
+	})
+
+	Myo.on('lock', function(){
+		Myo.vibrate('medium');
+		console.log('locked');
+	})
+
+
+	Myo.on('thumb_to_pinky', function(edge){
+		hasFist = edge;
+		if(!Myo.isLocked || Myo.armIsBusy) return;
+
+		//if(edge) Myo.vibrate('short');
+
+		Myo.timer(edge, 500, function(){
+			//Myo.unlock(2000);
+		});
+	});
+
+
+
+	Myo.on('double_tap', function(){
+		Myo.zeroOrientation();
+		console.log('zero');
+
+	})
+
+
+</script>
+	</body>
+</html>

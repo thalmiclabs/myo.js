@@ -124,6 +124,10 @@
 			$('#busy').html('----');
 		}
 
+		if(hasFist && data.gyroscope.z > data.gyroscope.y + 150){
+			console.log('PUNCH');
+		}
+
 
 		update();
 	});
@@ -139,6 +143,12 @@
 		});
 		return _.values(result);
 	}
+
+	var hasFist = false;
+
+	Myo.on('fist', function(edge){
+		hasFist = edge;
+	})
 
 
 
@@ -190,7 +200,7 @@
 
 	var filterPose = function(pose){
 		console.log('YEAH', pose);
-		Myo.vibrate('short');
+		//Myo.vibrate('short');
 
 		showPose(pose);
 	}
@@ -206,7 +216,7 @@
 			filterPose(pose);
 		})
 
-		console.log(pose, edge);
+		//console.log(pose, edge);
 
 
 		if(pose == 'spread'){
@@ -220,23 +230,24 @@
 
 
 	Myo.on('unlock', function(){
-		Myo.vibrate('short').vibrate('short');
+		//Myo.vibrate('short').vibrate('short');
 		console.log('unlocked');
 	})
 
 	Myo.on('lock', function(){
-		Myo.vibrate('medium');
+		//Myo.vibrate('medium');
 		console.log('locked');
 	})
 
 
 	Myo.on('thumb_to_pinky', function(edge){
+		hasFist = edge;
 		if(!Myo.isLocked || Myo.armIsBusy) return;
 
-		if(edge) Myo.vibrate('short');
+		//if(edge) Myo.vibrate('short');
 
 		Myo.timer(edge, 500, function(){
-			Myo.unlock(2000);
+			//Myo.unlock(2000);
 		});
 	});
 
