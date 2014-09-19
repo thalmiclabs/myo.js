@@ -206,6 +206,7 @@
 				"myo": this.myoId,
 				"type": intensity
 			}]));
+
 			return this;
 		},
 

@@ -21,6 +21,9 @@
 			<div id='pan_y'></div>
 		</div>
 
+		<div id='y'></div>
+		<div id='z'></div>
+
 		<div class='images'>
 			<img id='fist' src='ui/img/fist.png' />
 			<img id='spread' src='ui/img/spread.png' />
@@ -115,8 +118,7 @@
 
 		//console.log(data.orientation.z);
 
-		$('#pan_x').height((50 -data.orientation.y * 100) + '%')
-		$('#pan_y').width(( data.orientation.z * 100  + 50) + '%')
+
 
 		if(Myo.armIsBusy){
 			$('#busy').html('BUSY');
@@ -127,6 +129,15 @@
 		if(hasFist && data.gyroscope.z > data.gyroscope.y + 150){
 			console.log('PUNCH');
 		}
+
+
+
+		$('#y').html(Myo.mouse[0].toFixed(3))
+		$('#z').html(Myo.mouse[1].toFixed(3))
+
+
+		//$('#pan_x').height( ((dist*d.x + d.y) + 0.5)*100 + '%')
+		//$('#pan_y').width( ((dist*d.x + d.z) + 0.5)*100 + '%')
 
 
 		update();
@@ -254,6 +265,8 @@
 
 
 	Myo.on('double_tap', function(){
+		Myo.zeroOrientation();
+		Myo.mouse = [0,0];
 		if(Myo.isLocked){
 			Myo.unlock()
 		}else{
