@@ -1,7 +1,7 @@
+NOTE : If you are a bleeding-edge kind of developer, be sure to check out the [Experimental](https://github.com/stolksdorf/myo.js/tree/master/experimental) Myo.js features!
+
 # Myo.js
-Myo.js allows you to easily integrate your Myo with javascript.
-
-
+Myo + Javascript?! Oh My!
 
 ## Getting Started
 
@@ -23,7 +23,8 @@ Try this out!
 The Myo.js library can be access through the `Myo` variable. This is the core library and be used to create new Myo instances, trigger global events, amongst other things. To create a new Myo object use the `Myo.create()` function. This function can two parameters: an id (used for multi-Myo support), and specific options for that Myo.
 
 	var myMyo = Myo.create(); //Defaults to id 0
-	var thirdMyo = Myo.create(2, {armbusy_threshold : 10}); //Make this Myo a bit more sensitive
+	//Make this Myo a bit more sensitive
+	var thirdMyo = Myo.create(2, {armbusy_threshold : 10});
 
 Commands and events used with these instances are specific to that Myo. You can create Myo instances for Myo that aren't connected yet. For example if your app uses an optional second Myo, create two instances, and listen for the `connected` event on the second one to enable dual Myo support.
 
@@ -66,8 +67,9 @@ To reduce the number of false positives, it's useful to react when the user hold
 For more passive apps, it's useful to "lock" and "unlock" the Myo so that accidental actions aren't picked up. We provide `.lock()` and `.unlock()` functions, `lock` and `unlock` events, and a `myo.isLocked` boolean. Myo.js doesn't implement any logic for locking and unlocking the Myo, that's up to you.
 
 	//Thumb to pinky will unlock the Myo for 2 seconds
-	//Wave out will make the menu go left, only if the Myo is unlocked, also resets the relock for 5 seconds
-	//The Myo will vibrate on lock and unlock.
+	// Wave out will make the menu go left, only if the Myo is unlocked,
+	// also resets the relock for 5 seconds
+	// The Myo will vibrate on lock and unlock.
 	myMyo.on('thumb_to_pinky', function(edge){
 		myMyo.unlock(2000);
 	});
@@ -101,6 +103,9 @@ An array containing the created Myo instances indexed by their id.
 
 **create** &nbsp; `Myo.create(), Myo.create(id), Myo.create(opts), Myo.create(id, opts)` <br>
 Creates and returns a new Myo instance. If no `id` is provided, defaults to 0. `opts` provided will overwrite the default options.
+
+	var myMyo = Myo.create();
+	var thirdMyo = Myo.create(2, {armbusy_threshold : 10});
 
 **on** &nbsp; `Myo.on(eventName, callback)` <br>
 Creates a global listener for each Myo instance for the given event. The `callback`'s context will be the Myo instance.
@@ -145,13 +150,18 @@ Stores a boolean on whether the Myo is currently locked.
 **on** &nbsp; `myo.on(eventName, function(arg1, arg2,...))` <br>
 On sets up a listener for a specific event name. Whenever that event is triggered, each function added with `on()`, will be called with whatever arguments `trigger()` was called with. Returns a unique event id for this listener.
 
-	myMyo.on('fist', function(start){
-		if(start)  console.log('fist pose start');
-		if(!start) console.log('fist pose end');
+	myMyo.on('fist', function(edge){
+		if(edge)  console.log('fist pose start');
+		if(!edge) console.log('fist pose end');
 	});
 
 **trigger** &nbsp; `myo.trigger(eventName, arg1, arg2, ...)` <br>
 Trigger activates each listener for a specific event. You can add any additional parameters to be passed to the listener. Myo.js uses this internally to trigger events.
+
+	myMyo.on('foobar', function(msg){
+		console.log('wooooo', msg)
+	});
+	myMyo.trigger('foobar', 'ah yis!');
 
 
 **zeroOrientation** &nbsp; `myo.zeroOrientation()` <br>
@@ -171,7 +181,7 @@ Sets `Myo.isLocked` to false and fires the `unlock` event. If a `timeout` is pas
 	myMyo.unlock(); //Will unlock the Myo indefinitely
 	myMyo.unlock(1000); //Unlocks the Myo, but will relock after 1 second
 
-**vibrate** &nbsp; `myo.vibrate('short' | 'medium' | 'long')` <br>
+**vibrate** &nbsp; `myo.vibrate(), myo.vibrate('short' | 'medium' | 'long')` <br>
 Makes the Myo vibrate with a given duration. Defaults to `'medium'`.
 
 **requestBluetoothStrength** &nbsp; `myo.requestBluetoothStrength()` <br>
@@ -191,8 +201,6 @@ Timer is useful for when you want a simple timeout for an action, such as holdin
 			myMyo.trigger('spread_hold')
 		})
 	})
-
-
 
 
 

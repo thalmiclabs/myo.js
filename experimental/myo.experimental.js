@@ -65,12 +65,12 @@
 	 */
 	Myo.on('orientation', function(data){
 		var inverse = (this.x_direction == 'toward_wrist') ? 1 : -1;
-		//TODO : Use the hamilton/quaterion calcs
-		this.trigger('position', {
-			x     : data.w * inverse,
-			y     : (data.x - data.y/2) * inverse,
-			theta : (data.y * -180) * inverse
-		})
+		//TODO : Use the hamilton/quaterion calcs... eventually
+		var x    = data.w * inverse;
+		var y    = (data.x - data.y/2) * inverse;
+		var theta =(data.y * -180) * inverse;
+
+		this.trigger('position', x, y, theta);
 	});
 
 
