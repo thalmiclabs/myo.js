@@ -1,24 +1,25 @@
 (function(){
 
-	var eventTable = {
-		'rest'           : 'rest',
-		'fingers_spread' : 'spread',
-		'wave_in'        : 'wave_in',
-		"wave_out"       : 'wave_out',
-		'fist'           : 'fist',
-		'thumb_to_pinky' : 'thumb_to_pinky',
-		'unknown'        : 'myo_removed'
+
+	var extend = function(){
+		var result = {};
+		for(var i in arguments){
+			var obj = arguments[i];
+			for(var propName in obj){
+				if(obj.hasOwnProperty(propName)){ result[propName] = obj[propName]; }
+			}
+		}
+		return result;
 	};
 
 
-	var lockTimeout, lastOrientation, lastPose, timerTO;
 
 
 	var emitPose = function(poseName){
-		if(lastPose != 'rest' && poseName == 'rest'){
-			this.trigger(lastPose, false);
-			this.trigger('pose', lastPose, false);
-			//handleWave(lastPose, false);
+		if(this.lastPose != 'rest' && poseName == 'rest'){
+			this.trigger(this.lastPose, false);
+			this.trigger('pose', this.lastPose, false);
+			//handleWave(this.lastPose, false);
 		}
 		this.trigger(poseName, true);
 		this.trigger('pose', poseName, true);
@@ -38,95 +39,136 @@
 	}
 
 
+
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
 
-		if(data.type == 'pose'){
-			var poseName = eventTable[data.pose];
-
-			emitPose.call(this, poseName);
+		if(myos[data.myo]){
+			var myo = myos[data.myo].trigger(data.type, data)
 
 
-			lastPose = poseName;
-		}else if(data.type =='orientation'){
-			if(!lastOrientation) this.orientationOffset = data.orientation;
-			lastOrientation = data.orientation;
-
-			var imu_data = {
-				orientation : {
-					x : data.orientation.x - this.orientationOffset.x,
-					y : data.orientation.y - this.orientationOffset.y,
-					z : data.orientation.z - this.orientationOffset.z,
-					w : data.orientation.w - this.orientationOffset.w
-				},
-				accelerometer : {
-					x : data.accelerometer[0],
-					y : data.accelerometer[1],
-					z : data.accelerometer[2]
-				},
-				gyroscope : {
-					x : data.gyroscope[0],
-					y : data.gyroscope[1],
-					z : data.gyroscope[2]
+			if(data.type == 'pose'){
+				emitPose.call(myo, data.pose);
+				myo.lastPose = data.pose;
+			}else if(data.type =='orientation'){
+				myo.lastOrientation = data.orientation;
+				var imu_data = {
+					orientation : {
+						x : data.orientation.x - myo.orientationOffset.x,
+						y : data.orientation.y - myo.orientationOffset.y,
+						z : data.orientation.z - myo.orientationOffset.z,
+						w : data.orientation.w - myo.orientationOffset.w
+					},
+					accelerometer : {
+						x : data.accelerometer[0],
+						y : data.accelerometer[1],
+						z : data.accelerometer[2]
+					},
+					gyroscope : {
+						x : data.gyroscope[0],
+						y : data.gyroscope[1],
+						z : data.gyroscope[2]
+					}
 				}
+
+				myo.trigger('orientation', imu_data.orientation);
+				myo.trigger('accelerometer', imu_data.accelerometer);
+				myo.trigger('gyroscope', imu_data.gyroscope);
+				myo.trigger('imu', imu_data);
+
+			//Lifecycle events
+			}else if(data.type =='arm_recognized'){
+				myo.arm = data.arm;
+				myo.x_direction = data.x_direction;
+				myo.trigger('arm_recognized');
+			}else if(data.type =='arm_recognized'){
+				myo.arm = data.arm;
+				myo.x_direction = data.x_direction;
+				myo.trigger('arm_recognized');
+			}else if(data.type =='rssi'){
+				myo.trigger('bluetooth_strength', data.rssi);
+			}else if(data.type =='paired'){
+				myo.connect_version = data.version.join('.');
+			}else{
+				console.log(data.type, data);
+				myo.trigger(data.type, data)
 			}
 
-			this.trigger('orientation', imu_data.orientation);
-			this.trigger('accelerometer', imu_data.accelerometer);
-			this.trigger('gyroscope', imu_data.gyroscope);
-			this.trigger('imu', imu_data);
-
-
-		}else if(data.type =='arm_recognized'){
-			console.log('arm_recon', data);
-			this.arm = data.arm;
-			this.x_direction = data.x_direction;
-			this.trigger('arm_recognized');
-		}else if(data.type =='rssi'){
-			this.trigger('bluetooth_strength', data.rssi);
-		}else if(data.type =='paired'){
-			this.myoId = data.myo;
-			this.connect_version = data.version.join('.');
-		}else{
-			console.log(data.type, data);
-			this.trigger(data.type, data)
 		}
-	};
+	}
 
 
-	var events = [];
+	var myos = [];
 
-
-
+	var socket;
 
 	Myo = {
-		isLocked : false,
 		options : {
-			api_version    : 1,
-			socket_url     : "ws://127.0.0.1:7204/myo/",
+			api_version           : 1,
+			socket_url            : "ws://127.0.0.1:7204/myo/",
 			correct_myo_direction : true
 		},
+
+
+		/**
+		 * Myo Stats
+		 */
+		isLocked : false,
 		orientationOffset : {
 			x : 0,
 			y : 0,
 			z : 0,
 			w : 0
 		},
+		lastOrientation : {
+			x : 0,
+			y : 0,
+			z : 0,
+			w : 0
+		},
+		socket : undefined,
 
 
 
 
-		//_events : [],
+
+		/**
+		 * Myo Contrsuctor
+		 * @param  {number} id
+		 * @param  {object} options
+		 * @return {myo}
+		 */
+		create : function(id, options){
+			if(!id) id = 0;
+			if(typeof id === "object") options = id;
+			options = options || {};
+
+			var newMyo = Object.create(Myo);
+			newMyo.options = extend(Myo.options, options);
+			newMyo._events = Myo._events.slice(0);
+			newMyo.id = id;
+			myos[id] = newMyo;
+			return newMyo;
+		},
+
+
+
+
+		/**
+		 * Event functions
+		 */
+		_events : [],
 		trigger : function(eventName){
+			var thisMyo = this;
 			var args = Array.prototype.slice.apply(arguments).slice(1);
-			events.map(function(event){
-				if(event.name == eventName || eventName == '*') event.fn.apply(Myo, args);
+			this._events.map(function(event){
+				if(event.name == eventName || eventName == '*') event.fn.apply(thisMyo, args);
 			});
 			return this;
 		},
 		on : function(name, fn){
-			var id = new Date().getTime() + "" + events.length;
-			events.push({
+			var id = new Date().getTime() + "" + this._events.length;
+			this._events.push({
 				id   : id,
 				name : name,
 				fn   : fn
@@ -134,53 +176,29 @@
 			return id;
 		},
 		off : function(name){
-			events = events.reduce(function(result, event){
+			this._events = this._events.reduce(function(result, event){
 				if(event.name !== name && event.id !== id) result.push(event);
 				return result;
 			}, []);
 			return this;
 		},
 
+
+
+
 		timer : function(status, timeout, fn){
 			if(status){
-				timerTO = setTimeout(fn, timeout);
+				this.timeout = setTimeout(fn.bind(this), timeout);
 			}else{
-				clearTimeout(timerTO)
+				clearTimeout(this.timeout)
 			}
 		},
-
-
-
-
-
-		start : function(){
-			var self = this;
-			if (!("WebSocket" in window)){
-				this.trigger('error', 'Sockets not supported');
-				return this;
-			}
-			this.socket = new WebSocket(this.options.socket_url + this.options.api_version);
-			this.socket.onopen = function() {
-				self.trigger('socket_connect');
-			};
-			this.socket.onerror = function(err) {
-				self.trigger('error', err)
-			};
-			this.socket.onmessage = handleMessage.bind(this);
-			return this;
-		},
-		stop : function(){
-			this.socket.close();
-			return this;
-		},
-
 		lock : function(){
 			if(this.isLocked) return true;
 			this.isLocked = true;
 			this.trigger('lock');
 			return this;
 		},
-
 		unlock : function(timeout){
 			var self = this;
 			clearTimeout(lockTimeout);
@@ -194,7 +212,6 @@
 			this.trigger('unlock');
 			return this;
 		},
-
 		zeroOrientation : function(){
 			this.orientationOffset = lastOrientation;
 			this.trigger('zero_orientation');
@@ -205,7 +222,7 @@
 			intensity = intensity || 'medium';
 			this.socket.send(JSON.stringify(['command',{
 				"command": "vibrate",
-				"myo": this.myoId,
+				"myo": this.id,
 				"type": intensity
 			}]));
 
@@ -215,11 +232,29 @@
 		requestBluetooth : function(){
 			this.socket.send(JSON.stringify(['command',{
 				"command": "request_rssi",
-				"myo": this.myoId
+				"myo": this.id
 			}]));
 			return this;
 		},
 	};
+
+
+	/**
+	 * Sets up the web socket
+	 * Ran on library load
+	 */
+	var startSocket = function(){
+		if (!("WebSocket" in window)){
+			console.error('Myo.js : Sockets not supported :(');
+		}
+		if(!Myo.socket){
+			Myo.socket = new WebSocket(Myo.options.socket_url + Myo.options.api_version);
+		}
+		Myo.socket.onerror = function(err) {
+			self.trigger('error', err)
+		};
+		Myo.socket.onmessage = handleMessage;
+	}();
 
 
 })();

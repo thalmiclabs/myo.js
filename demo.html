@@ -16,6 +16,28 @@
 
 	<script>
 
+		Myo.on('pose', function(poseName){
+
+		})
+
+		m0 = Myo.create(0);
+		m1 = Myo.create(1);
+
+
+
+		m0.on('pose', function(posenName, edge){
+		});
+
+		m1.on('pose', function(posenName, edge){
+			if(posenName !== 'wave_out') return;
+			m1.timer(edge, 200, function(){
+				m1.vibrate();
+				console.log('super wave_out', this);
+			});
+		});
+
+
+
 
 
 	</script>
