@@ -1,78 +1,48 @@
 <html>
 	<head>
-	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,700,400' rel='stylesheet' type='text/css'>
-		<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-		<script src='http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js'></script>
-
 		<script src='./myo.js'></script>
-
 		<script src='./experimental/myo.experimental.js'></script>
-
-
 	</head>
 	<body>
 
-		<div id='woo'></div>
+		<div id='log'></div>
 
 	</body>
 
 	<script>
 
-		m0 = Myo.create(0);
-		//m1 = Myo.create(1);
+		var log = document.getElementById('log')
 
-		Myo.on('pose', function(poseName){
+		var myo = Myo.create(0);
+
+		myo.on('pose', function(poseName){
 			//console.log(poseName);
 		})
 
-		Myo.on('arm_recognized', function(){
+		myo.on('arm_recognized', function(){
 			console.log('good!', this.id);
 		})
 
-		Myo.on('arm_lost', function(){
+		myo.on('arm_lost', function(){
 			console.log('bad', this.id);
 		})
 
 
-		Myo.on('wave_left', function(){
-			//console.log('wave Left!');
+		myo.on('wave_left', function(){
+			console.log('wave Left!');
 		})
-		Myo.on('wave_right', function(){
-			//console.log('wave right!');
+		myo.on('wave_right', function(){
+			console.log('wave right!');
 		})
 
-		Myo.on('double_tap', function(){
+		myo.on('double_tap', function(){
 			this.zeroOrientation();
-		})
-
-
-
-/*
-
-
-		m1.on('orientation', function(data){
-			//console.log(data);
-			$('#woo').html(data.w)
-		})
-
-
-		m0.on('pose', function(posenName, edge){
+			console.log('double tap') ;
 		});
 
-		m1.on('pose', function(posenName, edge){
-			if(posenName !== 'wave_out') return;
-			m1.timer(edge, 200, function(){
-				//m0.vibrate();
-				console.log('super wave_out', this.id);
-			});
-		});
-
-
-*/
-
-
-
-
+		myo.on('orientation', function(data){
+			log.innerHTML = data.w;
+		})
 
 
 
