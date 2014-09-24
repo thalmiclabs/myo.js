@@ -51,7 +51,8 @@ Whenever the Myo detects a pose change it will fire a `pose` event. The listener
 			console.log('Started ', pose_name);
 		}
 	});
-	Myo.on('wave_in', function(edge){
+	var myMyo = Myo.create();
+	myMyo.on('wave_in', function(edge){
 		if(edge) Menu.left()
 	})
 
@@ -61,8 +62,6 @@ Fired whenever `Myo.lock()` is called. Useful for firing vibration events, or up
 **unlock** &nbsp; `Myo.on('unlock', function(){ ... })` <br>
 Fired whenever `Myo.unlock()` is called. Useful for firing vibration events, or updating UI when the Myo becomes unlocked.
 
-**error** &nbsp; `Myo.on('error', function(message){ ... })` <br>
-If Myo.js ever encounters an error, it'll fire an error event.
 
 
 ## Functions

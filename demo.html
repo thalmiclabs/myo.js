@@ -18,6 +18,9 @@
 
 	<script>
 
+		m0 = Myo.create(0);
+		m1 = Myo.create(1);
+
 		Myo.on('pose', function(poseName){
 			//console.log(poseName);
 		})
@@ -44,7 +47,7 @@
 
 
 
-		m0 = Myo.create();
+
 
 
 		m1.on('orientation', function(data){

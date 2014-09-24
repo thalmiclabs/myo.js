@@ -215,7 +215,6 @@
 		events : [],
 		myos : [],
 
-
 		/**
 		 * Myo Constructor
 		 * @param  {number} id
