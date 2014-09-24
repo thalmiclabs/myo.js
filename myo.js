@@ -78,9 +78,10 @@
 
 
 		}else if(data.type =='arm_recognized'){
+			console.log('arm_recon', data);
 			this.arm = data.arm;
 			this.x_direction = data.x_direction;
-			this.trigger('ready');
+			this.trigger('arm_recognized');
 		}else if(data.type =='rssi'){
 			this.trigger('bluetooth_strength', data.rssi);
 		}else if(data.type =='paired'){
@@ -196,6 +197,7 @@
 
 		zeroOrientation : function(){
 			this.orientationOffset = lastOrientation;
+			this.trigger('zero_orientation');
 			return this;
 		},
 

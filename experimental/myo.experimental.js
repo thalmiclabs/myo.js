@@ -117,8 +117,6 @@
 	 */
 	Myo.getRoll = function(){
 
-
-
 	};
 
 	/**
@@ -128,9 +126,6 @@
 	Myo.on('imu', function(data){
 		var gyro = data.gyroscope;
 		var quat = data.orientation;
-
-
-
 
 		// Accel vector in world space
 		var gyroRad = {
@@ -149,23 +144,13 @@
 		// Right vector
 		var right = crossProduct(forward, {x:0, y:0, z : -1});
 
-
-
-
 		// Get quat that rotates Myo's right vector
 		var up ={x:0, y:1, z : 0};
 
-
-
-
 		var yCompensationQuat = normalize(rotate(right, up))
-
-
-
 
 		// Rotate accel vector through y-compensation quat
 		var gyroVectorCompensated = rotate(yCompensationQuat, gyroRadWorld);
-
 
 		// Get x and y components of accel vector
 		var dx = -gyroRadWorld.z;
