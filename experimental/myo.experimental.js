@@ -51,7 +51,7 @@
 
 		if(delta > this.options.doubleTap.threshold){
 			if(this.last_tap){
-				var diff = _.now() - this.last_tap;
+				var diff = new Date().getTime() - this.last_tap;
 				if(diff > this.options.doubleTap.time[0] && diff < this.options.doubleTap.time[1] && !this.armIsBusy){
 					this.trigger('double_tap');
 				}

@@ -3,7 +3,7 @@
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,700,400' rel='stylesheet' type='text/css'>
 		<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
 		<script src='http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js'></script>
-		<script src='http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+
 		<script src='./myo.js'></script>
 
 		<script src='./experimental/myo.experimental.js'></script>
@@ -19,18 +19,18 @@
 	<script>
 
 		m0 = Myo.create(0);
-		m1 = Myo.create(1);
+		//m1 = Myo.create(1);
 
 		Myo.on('pose', function(poseName){
 			//console.log(poseName);
 		})
 
-		Myo.on('arm_busy', function(){
-			console.log('busy', this.id);
+		Myo.on('arm_recognized', function(){
+			console.log('good!', this.id);
 		})
 
-		Myo.on('arm_rest', function(){
-			console.log('rest', this.id);
+		Myo.on('arm_lost', function(){
+			console.log('bad', this.id);
 		})
 
 
@@ -47,7 +47,7 @@
 
 
 
-
+/*
 
 
 		m1.on('orientation', function(data){
@@ -68,7 +68,7 @@
 		});
 
 
-
+*/
 
 
 

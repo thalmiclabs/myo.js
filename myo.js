@@ -20,25 +20,6 @@
 	}
 
 
-
-	/*
-	var emitPose = function(poseName){
-
-	}
-
-	var handleWave = function(poseName, edge){
-		if(poseName == 'wave_in'){
-			var pose = ((Myo.arm == 'right') ? 'wave_left' : 'wave_right');
-			Myo.trigger(pose, edge);
-			Myo.trigger('pose', pose, edge);
-		}else if(poseName == 'wave_out'){
-			var pose = ((Myo.arm == 'right') ? 'wave_right' : 'wave_left')
-			Myo.trigger(pose, edge);
-			Myo.trigger('pose', pose, edge);
-		}
-	}
-	*/
-
 	var eventTable = {
 		'pose' : function(myo, data){
 			if(myo.lastPose != 'rest' && data.pose == 'rest'){
