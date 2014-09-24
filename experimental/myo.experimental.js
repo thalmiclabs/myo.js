@@ -6,7 +6,7 @@
 	 * Relative Direction Waves
 	 */
 	Myo.options.use_relative_waves = false;
-
+	//TODO: Add wave up and down
 	Myo.on('wave_in', function(edge){
 		(this.arm == 'left') ?
 			this.trigger('wave_right', edge) :
@@ -25,6 +25,7 @@
 	Myo.options.armbusy_threshold = Myo.options.armbusy_threshold || 80;
 	Myo.armBusyData = 0;
 	Myo.on('gyroscope', function(gyro){
+		this.armBusyData = this.armBusyData || 0;
 		var ema_alpha = 0.1;
 		var ema = this.armBusyData + ema_alpha * (Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z) - this.armBusyData);
 		var busy = ema > this.options.armbusy_threshold;

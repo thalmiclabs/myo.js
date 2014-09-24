@@ -32,16 +32,19 @@
 
 
 		Myo.on('wave_left', function(){
-			console.log('wave Left!');
+			//console.log('wave Left!');
 		})
 		Myo.on('wave_right', function(){
-			console.log('wave right!');
+			//console.log('wave right!');
+		})
+
+		Myo.on('double_tap', function(){
+			this.zeroOrientation();
 		})
 
 
 
-		m0 = Myo.create(0);
-		m1 = Myo.create(1);
+		m0 = Myo.create();
 
 
 		m1.on('orientation', function(data){
@@ -56,8 +59,8 @@
 		m1.on('pose', function(posenName, edge){
 			if(posenName !== 'wave_out') return;
 			m1.timer(edge, 200, function(){
-				//m1.vibrate();
-				//console.log('super wave_out');
+				//m0.vibrate();
+				console.log('super wave_out', this.id);
 			});
 		});
 

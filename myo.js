@@ -13,6 +13,11 @@
 		}
 		return result;
 	};
+	var unique_counter = 0;
+	var getUniqueId = function(){
+		unique_counter++;
+		return new Date().getTime() + "" + unique_counter;
+	}
 
 
 
@@ -94,29 +99,44 @@
 		}
 	};
 
-
-
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
-		if(myos[data.myo] && eventTable[data.type]){
-			eventTable[data.type](myos[data.myo], data);
+		if(Myo.myos[data.myo] && eventTable[data.type]){
+			eventTable[data.type](Myo.myos[data.myo], data);
 		}
 	};
 
 
-	var myos = [];
+	/**
+	 * Eventy-ness
+	 */
+	var trigger = function(events, eventName, args){
+		var self = this;
+		//
+		events.map(function(event){
+			if(event.name == eventName || eventName == '*') event.fn.apply(self, args);
+		});
+		return this;
+	};
+	var on = function(events, name, fn){
+		var id = getUniqueId()
+		events.push({
+			id   : id,
+			name : name,
+			fn   : fn
+		});
+		return id;
+	};
+	var off = function(events, name){
+		events = events.reduce(function(result, event){
+			if(event.name !== name && event.id !== id) result.push(event);
+			return result;
+		}, []);
+	};
 
-	Myo = {
-		options : {
-			api_version           : 1,
-			socket_url            : "ws://127.0.0.1:7204/myo/",
-			correct_myo_direction : true
-		},
 
 
-		/**
-		 * Myo Stats
-		 */
+	var myoInstance = {
 		isLocked : false,
 		isConnected : false,
 		orientationOffset : {x : 0,y : 0,z : 0,w : 0},
@@ -124,64 +144,17 @@
 		socket : undefined,
 		arm : undefined,
 		direction : undefined,
+		events : [],
 
-
-
-
-
-		/**
-		 * Myo Constructor
-		 * @param  {number} id
-		 * @param  {object} options
-		 * @return {myo}
-		 */
-		create : function(id, options){
-			if(!id) id = 0;
-			if(typeof id === "object") options = id;
-			options = options || {};
-
-			var newMyo = Object.create(Myo);
-			newMyo.options = extend(Myo.options, options);
-			newMyo._events = Myo._events.slice(0);
-			newMyo.id = id;
-			myos[id] = newMyo;
-			return newMyo;
-		},
-
-
-
-
-		/**
-		 * Event functions
-		 */
-		_events : [],
 		trigger : function(eventName){
-			var thisMyo = this;
 			var args = Array.prototype.slice.apply(arguments).slice(1);
-			this._events.map(function(event){
-				if(event.name == eventName || eventName == '*') event.fn.apply(thisMyo, args);
-			});
+			trigger.call(this, Myo.events, eventName, args);
+			trigger.call(this, this.events, eventName, args);
 			return this;
 		},
-		on : function(name, fn){
-			var id = new Date().getTime() + "" + this._events.length;
-			this._events.push({
-				id   : id,
-				name : name,
-				fn   : fn
-			});
-			return id;
+		on : function(eventName, fn){
+			return on(this.events, eventName, fn)
 		},
-		off : function(name){
-			this._events = this._events.reduce(function(result, event){
-				if(event.name !== name && event.id !== id) result.push(event);
-				return result;
-			}, []);
-			return this;
-		},
-
-
-
 
 		timer : function(status, timeout, fn){
 			if(status){
@@ -217,43 +190,75 @@
 
 		vibrate : function(intensity){
 			intensity = intensity || 'medium';
-			this.socket.send(JSON.stringify(['command',{
+			Myo.socket.send(JSON.stringify(['command',{
 				"command": "vibrate",
 				"myo": this.id,
 				"type": intensity
 			}]));
-
 			return this;
 		},
-
 		requestBluetooth : function(){
-			this.socket.send(JSON.stringify(['command',{
+			Myo.socket.send(JSON.stringify(['command',{
 				"command": "request_rssi",
 				"myo": this.id
 			}]));
 			return this;
 		},
+	}
+
+
+	Myo = {
+		options : {
+			api_version           : 1,
+			socket_url            : "ws://127.0.0.1:7204/myo/"
+		},
+		events : [],
+		myos : [],
+
+
+		/**
+		 * Myo Constructor
+		 * @param  {number} id
+		 * @param  {object} options
+		 * @return {myo}
+		 */
+		create : function(id, options){
+			if(!id) id = 0;
+			if(typeof id === "object") options = id;
+			options = options || {};
+
+			var newMyo = Object.create(myoInstance);
+			newMyo.options = extend(Myo.options, options);
+			newMyo.events = [];
+			newMyo.id = id;
+			Myo.myos[id] = newMyo;
+			return newMyo;
+		},
+
+		/**
+		 * Event functions
+		 */
+		trigger : function(eventName){
+			var args = Array.prototype.slice.apply(arguments).slice(1);
+			trigger.call(Myo, Myo.events, eventName, args);
+			return Myo;
+		},
+		on : function(eventName, fn){
+			return on(Myo.events, eventName, fn)
+		},
+		start : function(){
+			if (!("WebSocket" in window)){
+				console.error('Myo.js : Sockets not supported :(');
+			}
+			if(!Myo.socket){
+				Myo.socket = new WebSocket(Myo.options.socket_url + Myo.options.api_version);
+			}
+			Myo.socket.onmessage = handleMessage;
+		}
+
 	};
 
-
-	/**
-	 * Sets up the web socket
-	 * Ran on library load
-	 */
-	var startSocket = function(){
-		if (!("WebSocket" in window)){
-			console.error('Myo.js : Sockets not supported :(');
-		}
-		if(!Myo.socket){
-			Myo.socket = new WebSocket(Myo.options.socket_url + Myo.options.api_version);
-		}
-		Myo.socket.onerror = function(err) {
-			self.trigger('error', err)
-		};
-		Myo.socket.onmessage = handleMessage;
-	}();
-
-
+	Myo.start();
 })();
 
 
