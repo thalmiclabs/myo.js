@@ -95,7 +95,11 @@
 		var self = this;
 		//
 		events.map(function(event){
-			if(event.name == eventName || eventName == '*') event.fn.apply(self, args);
+			if(event.name == eventName) event.fn.apply(self, args);
+			if(event.name == '*'){
+				args.unshift(eventName)
+				event.fn.apply(self, args);
+			}
 		});
 		return this;
 	};
@@ -152,9 +156,9 @@
 		},
 		unlock : function(timeout){
 			var self = this;
-			clearTimeout(lockTimeout);
+			clearTimeout(this.lockTimeout);
 			if(timeout){
-				lockTimeout = setTimeout(function(){
+				this.lockTimeout = setTimeout(function(){
 					self.lock();
 				}, timeout);
 			}
