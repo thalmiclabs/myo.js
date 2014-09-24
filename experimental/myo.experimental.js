@@ -3,127 +3,139 @@
 
 
 	/**
+	 * Relative Direction Waves
+	 */
+	Myo.options.use_relative_waves = false;
+
+	Myo.on('wave_in', function(edge){
+		(this.arm == 'left') ?
+			this.trigger('wave_right', edge) :
+			this.trigger('wave_left', edge);
+	});
+	Myo.on('wave_out', function(edge){
+		(this.arm == 'left') ?
+			this.trigger('wave_left', edge) :
+			this.trigger('wave_right', edge);
+	});
+
+
+	/**
 	 * Busy Arm Detection
 	 */
 	Myo.options.armbusy_threshold = Myo.options.armbusy_threshold || 80;
 	Myo.armBusyData = 0;
-	var ema_alpha = 0.1;
 	Myo.on('gyroscope', function(gyro){
-		var ema = Myo.armBusyData + ema_alpha * (Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z) - Myo.armBusyData);
-		var busy = ema > Myo.options.armbusy_threshold;
-		if(busy !== Myo.armIsBusy){
-			Myo.trigger(busy ? 'arm_busy' : 'arm_rest');
+		var ema_alpha = 0.1;
+		var ema = this.armBusyData + ema_alpha * (Math.abs(gyro.x) + Math.abs(gyro.y) + Math.abs(gyro.z) - this.armBusyData);
+		var busy = ema > this.options.armbusy_threshold;
+		if(busy !== this.armIsBusy){
+			this.trigger(busy ? 'arm_busy' : 'arm_rest');
 		}
-		Myo.armIsBusy = busy;
-		Myo.armBusyData = ema;
+		this.armIsBusy = busy;
+		this.armBusyData = ema;
 	});
-
-
-
-	//Wave up and Wave down
-
-
-
-	//Nudge
-
-	//Dynamic Gestures
 
 
 	/**
 	 * Double Tap
 	 */
 	Myo.options.doubleTap = Myo.options.doubleTap || {};
-	Myo.options.doubleTap.time = Myo.options.doubleTap.time || [100, 300];
+	Myo.options.doubleTap.time = Myo.options.doubleTap.time || [80, 300];
 	Myo.options.doubleTap.threshold = Myo.options.doubleTap.threshold || 0.9;
-	var last_y = 0;
-	var last_z = 0;
-	var last_tap;
 	Myo.on('accelerometer', function(data){
+		var last = this.lastIMU.accelerometer
 		var y = Math.abs(data.y)
 		var z = Math.abs(data.z)
-		var delta = Math.abs(last_y - y) + Math.abs(last_z - z)
-		last_y = y;
-		last_z = z;
+		var delta = Math.abs(Math.abs(last.y) - y) + Math.abs(Math.abs(last.z) - z);
 
-		if(delta > Myo.options.doubleTap.threshold){
-			if(last_tap){
-				var diff = _.now() - last_tap;
-				if(diff > Myo.options.doubleTap.time[0] && diff < Myo.options.doubleTap.time[1] && !Myo.armIsBusy){
-					Myo.trigger('double_tap');
+		if(delta > this.options.doubleTap.threshold){
+			if(this.last_tap){
+				var diff = _.now() - this.last_tap;
+				if(diff > this.options.doubleTap.time[0] && diff < this.options.doubleTap.time[1] && !this.armIsBusy){
+					this.trigger('double_tap');
 				}
 			}
-			last_tap = _.now();
+			this.last_tap = new Date().getTime();
 		}
+	});
+
+	/**
+	 * Positional Data
+	 */
+	Myo.on('orientation', function(data){
+		var inverse = (this.x_direction == 'toward_wrist') ? 1 : -1;
+		//TODO : Use the hamilton/quaterion calcs
+		this.trigger('position', {
+			x     : data.w * inverse,
+			y     : (data.x - data.y/2) * inverse,
+			theta : (data.y * -180) * inverse
+		})
 	});
 
 
 
-	var deg2rad = function(deg){
-		return deg*Math.PI/180;
-	}
-
-	var rotate = function(quat, vec3){
-		quat.w = quat.w || 0;
-		var hp = function(a, b){
-			return {
-				w : a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
-				x : a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
-				y : a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
-				z : a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w
-			}
-		};
-		var vec4 = {
-			w : 0,
-			x : vec3.x,
-			y : vec3.y,
-			z : vec3.z
-		}
-		var quat_p = {
-			w : quat.w,
-			x : -1 * quat.x,
-			y : -1 * quat.y,
-			z : -1 * quat.z
-		};
-		var r = hp(hp(quat, vec4), quat_p);
-		return {
-			w : r.w,
-			x : r.x,
-			y : r.y,
-			z : r.z
-		}
-	}
-
-	var crossProduct = function(a, b){
-		return {
-			x : a.y*b.z - a.z*b.y,
-			y : a.z*b.x - a.x*b.z,
-			z : a.x*b.y - a.y*b.x
-		}
-	};
-
-	var normalize = function(quat){
-		var mag = Math.sqrt(Math.pow(quat.w,2) + Math.pow(quat.x,2) + Math.pow(quat.y,2) + Math.pow(quat.z,2));
-
-		return {
-			w : quat.w / mag,
-			x : quat.x / mag,
-			y : quat.y / mag,
-			z : quat.z / mag
-		};
-	};
-
 	/**
-	 * GetRoll()
+	 * Better Positional, WIP
+	 *
 	 */
-	Myo.getRoll = function(){
-
-	};
-
-	/**
-	 * getPan()
-	 */
+	/*
 	Myo.mouse = [0,0];
 	Myo.on('imu', function(data){
+
+		var deg2rad = function(deg){
+			return deg*Math.PI/180;
+		}
+
+		var rotate = function(quat, vec3){
+			quat.w = quat.w || 0;
+			var hp = function(a, b){
+				return {
+					w : a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
+					x : a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
+					y : a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
+					z : a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w
+				}
+			};
+			var vec4 = {
+				w : 0,
+				x : vec3.x,
+				y : vec3.y,
+				z : vec3.z
+			}
+			var quat_p = {
+				w : quat.w,
+				x : -1 * quat.x,
+				y : -1 * quat.y,
+				z : -1 * quat.z
+			};
+			var r = hp(hp(quat, vec4), quat_p);
+			return {
+				w : r.w,
+				x : r.x,
+				y : r.y,
+				z : r.z
+			}
+		}
+
+		var crossProduct = function(a, b){
+			return {
+				x : a.y*b.z - a.z*b.y,
+				y : a.z*b.x - a.x*b.z,
+				z : a.x*b.y - a.y*b.x
+			}
+		};
+		var normalize = function(quat){
+			var mag = Math.sqrt(Math.pow(quat.w,2) + Math.pow(quat.x,2) + Math.pow(quat.y,2) + Math.pow(quat.z,2));
+			return {
+				w : quat.w / mag,
+				x : quat.x / mag,
+				y : quat.y / mag,
+				z : quat.z / mag
+			};
+		};
+
+
+
 		var gyro = data.gyroscope;
 		var quat = data.orientation;
 
@@ -177,7 +189,6 @@
 
 		Myo.mouse = [Myo.mouse[0] + _dx, (Myo.mouse[1] || 0) + _dy];
 	})
-
-
+*/
 
 }());

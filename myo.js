@@ -1,6 +1,8 @@
 (function(){
 
-
+	/**
+	 * Utils
+	 */
 	var extend = function(){
 		var result = {};
 		for(var i in arguments){
@@ -14,16 +16,9 @@
 
 
 
-
+	/*
 	var emitPose = function(poseName){
-		if(this.lastPose != 'rest' && poseName == 'rest'){
-			this.trigger(this.lastPose, false);
-			this.trigger('pose', this.lastPose, false);
-			//handleWave(this.lastPose, false);
-		}
-		this.trigger(poseName, true);
-		this.trigger('pose', poseName, true);
-		//handleWave(poseName, true);
+
 	}
 
 	var handleWave = function(poseName, edge){
@@ -37,70 +32,79 @@
 			Myo.trigger('pose', pose, edge);
 		}
 	}
+	*/
+
+	var eventTable = {
+		'pose' : function(myo, data){
+			if(myo.lastPose != 'rest' && data.pose == 'rest'){
+				myo.trigger(myo.lastPose, false);
+				myo.trigger('pose', myo.lastPose, false);
+			}
+			myo.trigger(data.pose, true);
+			myo.trigger('pose', data.pose, true);
+			myo.lastPose = data.pose;
+		},
+		'rssi' : function(myo, data){
+			myo.trigger('bluetooth_strength', data.rssi);
+		},
+		'orientation' : function(myo, data){
+			var imu_data = {
+				orientation : {
+					x : data.orientation.x - myo.orientationOffset.x,
+					y : data.orientation.y - myo.orientationOffset.y,
+					z : data.orientation.z - myo.orientationOffset.z,
+					w : data.orientation.w - myo.orientationOffset.w
+				},
+				accelerometer : {
+					x : data.accelerometer[0],
+					y : data.accelerometer[1],
+					z : data.accelerometer[2]
+				},
+				gyroscope : {
+					x : data.gyroscope[0],
+					y : data.gyroscope[1],
+					z : data.gyroscope[2]
+				}
+			}
+			if(!myo.lastIMU) myo.lastIMU = imu_data;
+			myo.trigger('orientation',   imu_data.orientation);
+			myo.trigger('accelerometer', imu_data.accelerometer);
+			myo.trigger('gyroscope',     imu_data.gyroscope);
+			myo.trigger('imu',           imu_data);
+			myo.lastIMU = imu_data;
+		},
+		'arm_recognized' : function(myo, data){
+			myo.arm = data.arm;
+			myo.direction = data.x_direction;
+			myo.trigger(data.type);
+		},
+		'arm_lost' : function(myo, data){
+			myo.arm = undefined;
+			myo.direction = undefined;
+			myo.trigger(data.type);
+		},
+		'connected' : function(myo, data){
+			myo.connect_version = data.version.join('.');
+			myo.isConnected = true;
+			myo.trigger(data.type)
+		},
+		'disconnected' : function(myo, data){
+			myo.isConnected = false;
+			myo.trigger(data.type);
+		}
+	};
 
 
 
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
-
-		if(myos[data.myo]){
-			var myo = myos[data.myo].trigger(data.type, data)
-
-
-			if(data.type == 'pose'){
-				emitPose.call(myo, data.pose);
-				myo.lastPose = data.pose;
-			}else if(data.type =='orientation'){
-				myo.lastOrientation = data.orientation;
-				var imu_data = {
-					orientation : {
-						x : data.orientation.x - myo.orientationOffset.x,
-						y : data.orientation.y - myo.orientationOffset.y,
-						z : data.orientation.z - myo.orientationOffset.z,
-						w : data.orientation.w - myo.orientationOffset.w
-					},
-					accelerometer : {
-						x : data.accelerometer[0],
-						y : data.accelerometer[1],
-						z : data.accelerometer[2]
-					},
-					gyroscope : {
-						x : data.gyroscope[0],
-						y : data.gyroscope[1],
-						z : data.gyroscope[2]
-					}
-				}
-
-				myo.trigger('orientation', imu_data.orientation);
-				myo.trigger('accelerometer', imu_data.accelerometer);
-				myo.trigger('gyroscope', imu_data.gyroscope);
-				myo.trigger('imu', imu_data);
-
-			//Lifecycle events
-			}else if(data.type =='arm_recognized'){
-				myo.arm = data.arm;
-				myo.x_direction = data.x_direction;
-				myo.trigger('arm_recognized');
-			}else if(data.type =='arm_recognized'){
-				myo.arm = data.arm;
-				myo.x_direction = data.x_direction;
-				myo.trigger('arm_recognized');
-			}else if(data.type =='rssi'){
-				myo.trigger('bluetooth_strength', data.rssi);
-			}else if(data.type =='paired'){
-				myo.connect_version = data.version.join('.');
-			}else{
-				console.log(data.type, data);
-				myo.trigger(data.type, data)
-			}
-
+		if(myos[data.myo] && eventTable[data.type]){
+			eventTable[data.type](myos[data.myo], data);
 		}
-	}
+	};
 
 
 	var myos = [];
-
-	var socket;
 
 	Myo = {
 		options : {
@@ -114,26 +118,19 @@
 		 * Myo Stats
 		 */
 		isLocked : false,
-		orientationOffset : {
-			x : 0,
-			y : 0,
-			z : 0,
-			w : 0
-		},
-		lastOrientation : {
-			x : 0,
-			y : 0,
-			z : 0,
-			w : 0
-		},
+		isConnected : false,
+		orientationOffset : {x : 0,y : 0,z : 0,w : 0},
+		lastIMU : undefined,
 		socket : undefined,
+		arm : undefined,
+		direction : undefined,
 
 
 
 
 
 		/**
-		 * Myo Contrsuctor
+		 * Myo Constructor
 		 * @param  {number} id
 		 * @param  {object} options
 		 * @return {myo}
@@ -213,7 +210,7 @@
 			return this;
 		},
 		zeroOrientation : function(){
-			this.orientationOffset = lastOrientation;
+			this.orientationOffset = this.lastIMU.orientation;
 			this.trigger('zero_orientation');
 			return this;
 		},
