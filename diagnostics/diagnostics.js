@@ -236,3 +236,6 @@ Myo.on('*', function(event){
 
 
 var myo0 = Myo.create(0);
+var myo1 = Myo.create(1);
+var myo2 = Myo.create(2);
+var myo3 = Myo.create(3);

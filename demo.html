@@ -1,13 +1,24 @@
 <html>
 	<head>
+		<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
 		<script src='./myo.js'></script>
 		<script src='./experimental/myo.experimental.js'></script>
 	</head>
 	<body>
 
-		<div id='log'></div>
+		<div id='log'>
+
+		</div>
 
 	</body>
+
+	<style>
+		#log{
+			height : 50px;
+			width : 50px;
+			background-color: red;
+		}
+	</style>
 
 	<script>
 
@@ -31,8 +42,19 @@
 		myo.on('wave_left', function(){
 			console.log('wave Left!');
 		})
-		myo.on('wave_right', function(){
-			console.log('wave right!');
+		myo.on('fist', function(){
+			console.log('BT PLZ');
+			myo.requestBluetoothStrength();
+		})
+
+		setInterval(function(){
+			myo.requestBluetoothStrength();
+		}, 100);
+
+		myo.on('bluetooth_strength', function(BTS){
+			var width = ((BTS * -1 - 40 ) / 50 ) * 100  + '%';
+			$('#log').width(width);
+			console.log(width);
 		})
 
 		myo.on('double_tap', function(){
@@ -40,9 +62,11 @@
 			console.log('double tap') ;
 		});
 
-		myo.on('orientation', function(data){
-			log.innerHTML = data.w;
-		})
+		myo.on('gyroscope', function(data){
+			if(data.y < -2) console.log('hit!');
+		});
+
+
 
 
 

@@ -182,7 +182,7 @@
 			}]));
 			return this;
 		},
-		requestBluetooth : function(){
+		requestBluetoothStrength : function(){
 			Myo.socket.send(JSON.stringify(['command',{
 				"command": "request_rssi",
 				"myo": this.id
