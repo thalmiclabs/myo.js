@@ -271,3 +271,10 @@ Fired whenever `myo.lock()` is called. Useful for firing vibration events, or up
 
 **unlock** &nbsp; `myo.on('unlock', function(){ ... })` <br>
 Fired whenever `myo.unlock()` is called. Useful for firing vibration events, or updating UI when the Myo becomes unlocked.
+
+
+# TODO
+
+* Make the diagnostics page prettier
+* Roll this into an NPM module for nooooooooooode
+* Add a few more demos
