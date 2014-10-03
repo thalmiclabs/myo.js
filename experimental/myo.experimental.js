@@ -144,10 +144,14 @@
 		var y    = (data.x - data.y/2) * inverse;
 		var theta =(data.x * 180) * inverse;
 
+		//theta  = Math.atan2(2*data.y*data.w - 2*data.x*data.z, 1 - 2*data.y*data.y - 2*data.z*data.z);
+		//y = Math.atan2(2*data.x*data.w - 2*data.y*data.z, 1 - 2*data.x*data.x - 2*data.z*data.z);
+		//x   =  Math.asin(2*data.x*data.y + 2*data.z*data.w);
+
+		//console.log(theta);
+
 		this.trigger('position', x, y, theta);
 	});
-
-
 
 
 	/**
