@@ -34,6 +34,7 @@
 			myo.trigger('bluetooth_strength', data.rssi);
 		},
 		'orientation' : function(myo, data){
+			myo._lastQuant = data.orientation;
 			var imu_data = {
 				orientation : {
 					x : data.orientation.x - myo.orientationOffset.x,
@@ -168,7 +169,7 @@
 			return this;
 		},
 		zeroOrientation : function(){
-			this.orientationOffset = this.lastIMU.orientation;
+			this.orientationOffset = this._lastQuant;
 			this.trigger('zero_orientation');
 			return this;
 		},

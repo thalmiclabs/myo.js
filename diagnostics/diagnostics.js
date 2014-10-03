@@ -60,7 +60,7 @@ Myo.on('imu', function(data){
 	myoHistory.accelerometer = myoHistory.accelerometer.slice(1);
 
 
-	data.gyroscope.ema = Myo.armBusyData;
+	data.gyroscope.ema = this.armBusyData;
 
 	myoHistory.gyroscope.push(data.gyroscope);
 	myoHistory.gyroscope = myoHistory.gyroscope.slice(1);
@@ -69,7 +69,7 @@ Myo.on('imu', function(data){
 
 
 
-	if(Myo.armIsBusy){
+	if(this.armIsBusy){
 		$('#busy').html('BUSY');
 	}else{
 		$('#busy').html('----');
@@ -184,6 +184,9 @@ Myo.on('bluetooth_strength', function(val){
 var poseHold;
 Myo.on('pose', function(pose, edge){
 	if(this.id != myoId) return;
+
+	if(this.armIsBusy) return
+
 	if(pose == 'rest') return;
 	var imageName = 'img/' + (edge ? 'solid_blue_RH_' : 'blue_outline_RH_') + pose + '.png'
 	$('#pose_image').attr('src', imageName);
