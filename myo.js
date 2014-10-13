@@ -1,5 +1,14 @@
 (function(){
 
+	var Socket;
+	if(typeof window === 'undefined'){
+		Socket = require('ws');
+	}else {
+		if (!("WebSocket" in window)){
+			console.error('Myo.js : Sockets not supported :(');
+		}
+		Socket = WebSocket;
+	}
 	/**
 	 * Utils
 	 */
@@ -195,8 +204,8 @@
 
 	Myo = {
 		options : {
-			api_version           : 1,
-			socket_url            : "ws://127.0.0.1:7204/myo/"
+			api_version : 1,
+			socket_url  : "ws://127.0.0.1:10138/myo/"
 		},
 		events : [],
 		myos : [],
@@ -232,18 +241,17 @@
 			return on(Myo.events, eventName, fn)
 		},
 		start : function(){
-			if (!("WebSocket" in window)){
-				console.error('Myo.js : Sockets not supported :(');
-			}
 			if(!Myo.socket){
-				Myo.socket = new WebSocket(Myo.options.socket_url + Myo.options.api_version);
+				Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
 			}
 			Myo.socket.onmessage = handleMessage;
+			//Myo.socket.on('message', handleMessage);
 		}
 
 	};
 
 	Myo.start();
+	if(typeof module !== 'undefined') module.exports = Myo;
 })();
 
 

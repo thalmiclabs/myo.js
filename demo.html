@@ -1,6 +1,7 @@
 <html>
 	<head>
 		<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+		<script src='http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
 		<script src='./myo.js'></script>
 		<script src='./experimental/myo.experimental.js'></script>
 	</head>
@@ -47,9 +48,11 @@
 			myo.requestBluetoothStrength();
 		})
 
-		setInterval(function(){
-			myo.requestBluetoothStrength();
-		}, 100);
+		myo.on('connected', function(){
+			setInterval(function(){
+				myo.requestBluetoothStrength();
+			}, 100);
+		})
 
 		myo.on('bluetooth_strength', function(BTS){
 			var width = ((BTS * -1 - 40 ) / 50 ) * 100  + '%';

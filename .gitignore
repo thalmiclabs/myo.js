@@ -1,0 +1,4 @@
+# Dependency directory
+# Deployed apps should consider commenting this line out:
+/node_modules/*
+/node_modules/*/

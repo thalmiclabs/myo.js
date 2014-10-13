@@ -1,7 +1,11 @@
-NOTE : If you are a bleeding-edge kind of developer, be sure to check out the [Experimental](https://github.com/stolksdorf/myo.js/tree/master/experimental) Myo.js features!
+**Note : ** If you are a bleeding-edge kind of developer, be sure to check out the [Experimental](https://github.com/stolksdorf/myo.js/tree/master/experimental) Myo.js features!
+
+Like node? We do too. `npm install myo` will do what you need. [Check it out!](https://www.npmjs.org/package/myo)
 
 # Myo.js
+
 Myo + Javascript?! Oh My!
+
 
 ## Getting Started
 
@@ -46,7 +50,6 @@ Myo.js is all about events. Whenever we receive data from the Myo, we'll filter 
 	});
 
 
-
 ## Simple Actions
 
 Here are some techniques to get you started.
@@ -85,6 +88,11 @@ For more passive apps, it's useful to "lock" and "unlock" the Myo so that accide
 	myMyo.on('lock', function(){
 		myMyo.vibrate('short').vibrate('short');
 	});
+
+## Node support
+
+Myo.js also works on node! It uses the [ws](https://www.npmjs.org/package/ws) package for doing WebSockets. You have to do nothing extra, Myo.js will figure out if it's on a server or not and run accordingly. `npm install myo` will do what you need. [Check it out!](https://www.npmjs.org/package/myo)
+
 
 ## Final Touches
 
