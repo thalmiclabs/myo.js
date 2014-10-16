@@ -1,0 +1,28 @@
+{
+  "name": "myo",
+  "version": "1.0.0",
+  "description": "Javascript bindings for Myo",
+  "main": "myo.js",
+  "dependencies": {
+    "ws": "^0.4.32"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stolksdorf/myo.js.git"
+  },
+  "keywords": [
+    "myo",
+    "thalmic",
+    "myojs"
+  ],
+  "author": "stolksdorf",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stolksdorf/myo.js/issues"
+  },
+  "homepage": "https://github.com/stolksdorf/myo.js"
+}
