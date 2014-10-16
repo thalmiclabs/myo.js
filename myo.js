@@ -44,6 +44,7 @@
 		},
 		'orientation' : function(myo, data){
 			myo._lastQuant = data.orientation;
+			//console.log(data.orientation, myo.orientationOffset);
 			var imu_data = {
 				orientation : {
 					x : data.orientation.x - myo.orientationOffset.x,
@@ -124,9 +125,13 @@
 	};
 	var off = function(events, name){
 		events = events.reduce(function(result, event){
-			if(event.name !== name && event.id !== id) result.push(event);
+			if(event.name == name || event.id == name) {
+				return result;
+			}
+			result.push(event);
 			return result;
 		}, []);
+		return events;
 	};
 
 
@@ -149,6 +154,9 @@
 		},
 		on : function(eventName, fn){
 			return on(this.events, eventName, fn)
+		},
+		off : function(eventName){
+			this.events = off(this.events, eventName);
 		},
 
 		timer : function(status, timeout, fn){
@@ -245,7 +253,6 @@
 				Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
 			}
 			Myo.socket.onmessage = handleMessage;
-			//Myo.socket.on('message', handleMessage);
 		}
 
 	};
