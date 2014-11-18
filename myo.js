@@ -93,6 +93,7 @@
 
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
+		//console.log(data);
 		if(Myo.myos[data.myo] && eventTable[data.type]){
 			eventTable[data.type](Myo.myos[data.myo], data);
 		}
@@ -212,7 +213,7 @@
 
 	Myo = {
 		options : {
-			api_version : 1,
+			api_version : 2,
 			socket_url  : "ws://127.0.0.1:10138/myo/"
 		},
 		events : [],
@@ -225,6 +226,8 @@
 		 * @return {myo}
 		 */
 		create : function(id, options){
+			if(!Myo.socket) Myo.initSocket();
+
 			if(!id) id = 0;
 			if(typeof id === "object") options = id;
 			options = options || {};
@@ -248,16 +251,14 @@
 		on : function(eventName, fn){
 			return on(Myo.events, eventName, fn)
 		},
-		start : function(){
-			if(!Myo.socket){
-				Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
-			}
+		initSocket : function(){
+			Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
 			Myo.socket.onmessage = handleMessage;
+			Myo.socket.onerror = function(){
+				console.error('ERR: Myo.js could not create the socket. Double check the API versions.');
+			}
 		}
-
 	};
-
-	Myo.start();
 	if(typeof module !== 'undefined') module.exports = Myo;
 })();
 

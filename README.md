@@ -4,7 +4,7 @@ Like node? We do too. `npm install myo` will do what you need. [Check it out!](h
 
 # Myo.js
 
-Myo + Javascript?! Oh My!
+
 
 
 ## Getting Started
@@ -122,8 +122,8 @@ Creates a global listener for each Myo instance for the given event. The `callba
 		console.log('connected!', this.id)
 	});
 
-**start** &nbsp; `Myo.start()` <br>
-Creates web socket and sets up the message listener. Called on library load automatically.
+**initSocket** &nbsp; `Myo.initSocket()` <br>
+Creates web socket and sets up the message listener. Called implictly whenever you create a new myo instance.
 
 ## Myo Instance
 A Myo instance is an individual Myo create using this library.
