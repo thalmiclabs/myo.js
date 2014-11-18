@@ -255,7 +255,7 @@
 			Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
 			Myo.socket.onmessage = handleMessage;
 			Myo.socket.onerror = function(){
-				console.error('ERR: Myo.js could not create the socket. Double check the API versions.');
+				console.error('ERR: Myo.js had an error with the socket. Double check the API version.');
 			}
 		}
 	};

@@ -4,7 +4,7 @@ Like node? We do too. `npm install myo` will do what you need. [Check it out!](h
 
 # Myo.js
 
-
+Myo.js allows website and javascript application talk with your Myo over websockets.
 
 
 ## Getting Started
@@ -281,8 +281,11 @@ Fired whenever `myo.lock()` is called. Useful for firing vibration events, or up
 Fired whenever `myo.unlock()` is called. Useful for firing vibration events, or updating UI when the Myo becomes unlocked.
 
 
-# TODO
+# Changelog
 
-* Make the diagnostics page prettier
-* Roll this into an NPM module for nooooooooooode
-* Add a few more demos
+### 1.1.0 - Monday, 17/11/2014
+
+	* Renamed `Myo.start()` to `Myo.initSocket()`
+	* Myo.js now tries to create the socket when you create Myo instances. This allows developers to modify `Myo.options` before the socket is created. Useful for controlling down API verions.
+	* Added eror handling messages on the socket.
+	* Updated `Myo.options.api_version` to `2` to work with the newly released firmware.
