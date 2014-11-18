@@ -285,7 +285,7 @@ Fired whenever `myo.unlock()` is called. Useful for firing vibration events, or 
 
 ### 1.1.0 - Monday, 17/11/2014
 
-	* Renamed `Myo.start()` to `Myo.initSocket()`
-	* Myo.js now tries to create the socket when you create Myo instances. This allows developers to modify `Myo.options` before the socket is created. Useful for controlling down API verions.
-	* Added eror handling messages on the socket.
-	* Updated `Myo.options.api_version` to `2` to work with the newly released firmware.
+* Renamed `Myo.start()` to `Myo.initSocket()`
+* Myo.js now tries to create the socket when you create Myo instances. This allows developers to modify `Myo.options` before the socket is created. Useful for controlling API verions.
+* Added error handling messages on the socket.
+* Updated `Myo.options.api_version` to `2` to work with the newly released firmware.
