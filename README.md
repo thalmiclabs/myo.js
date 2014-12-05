@@ -283,6 +283,11 @@ Fired whenever `myo.unlock()` is called. Useful for firing vibration events, or 
 
 # Changelog
 
+### 1.1.2 - Friday, 05/12/2014
+* Added a second data parameter to most events
+* Added a nice example showing off graphing IMU data and event streams
+* Removed the empty Myo.ui stuff
+
 ### 1.1.1 - Thursday, 04/12/2014
 
 * Renamed `arm_recognized` event to `arm_synced`

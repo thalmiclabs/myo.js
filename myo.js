@@ -72,21 +72,21 @@
 		'arm_synced' : function(myo, data){
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
-			myo.trigger(data.type);
+			myo.trigger(data.type, data);
 		},
 		'arm_unsynced' : function(myo, data){
 			myo.arm = undefined;
 			myo.direction = undefined;
-			myo.trigger(data.type);
+			myo.trigger(data.type, data);
 		},
 		'connected' : function(myo, data){
 			myo.connect_version = data.version.join('.');
 			myo.isConnected = true;
-			myo.trigger(data.type)
+			myo.trigger(data.type, data)
 		},
 		'disconnected' : function(myo, data){
 			myo.isConnected = false;
-			myo.trigger(data.type);
+			myo.trigger(data.type, data);
 		}
 	};
 
