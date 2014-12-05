@@ -221,10 +221,10 @@ Fired when the Myo is successfully connected with the Myo Connect software. Popu
 **disconnected** &nbsp; `myo.on('disconnected', function(){ ... })` <br>
 Fired when the Myo is disconnected from the Myo Connect software.
 
-**arm_recognized** &nbsp; `myo.on('arm_recognized', function(){ ... })` <br>
+**arm_synced** &nbsp; `myo.on('arm_synced', function(){ ... })` <br>
 Fired when the User puts on the Myo and successfully does the Setup Gesture. Populates `myo.arm` and `myo.direction`
 
-**arm_lost** &nbsp; `myo.on('arm_lost', function(){ ... })` <br>
+**arm_unsynced** &nbsp; `myo.on('arm_unsynced', function(){ ... })` <br>
 Fired when the User removes the Myo.
 
 **imu** &nbsp; `myo.on('imu', function(data){ ... })` <br>
@@ -283,9 +283,15 @@ Fired whenever `myo.unlock()` is called. Useful for firing vibration events, or 
 
 # Changelog
 
+### 1.1.1 - Thursday, 04/12/2014
+
+* Renamed `arm_recognized` event to `arm_synced`
+* Renamed `arm_lost` event to `arm_unsynced`
+* Updated `Myo.options.api_version` to `3` to work with the newly released firmware.
+
 ### 1.1.0 - Monday, 17/11/2014
 
 * Renamed `Myo.start()` to `Myo.initSocket()`
-* Myo.js now tries to create the socket when you create Myo instances. This allows developers to modify `Myo.options` before the socket is created. Useful for controlling API verions.
+* Myo.js now tries to create the socket when you create Myo instances. This allows developers to modify `Myo.options` before the socket is created. Useful for controlling API versions.
 * Added error handling messages on the socket.
 * Updated `Myo.options.api_version` to `2` to work with the newly released firmware.

@@ -70,12 +70,12 @@
 			myo.trigger('imu',           imu_data);
 			myo.lastIMU = imu_data;
 		},
-		'arm_recognized' : function(myo, data){
+		'arm_synced' : function(myo, data){
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
 			myo.trigger(data.type);
 		},
-		'arm_lost' : function(myo, data){
+		'arm_unsynced' : function(myo, data){
 			myo.arm = undefined;
 			myo.direction = undefined;
 			myo.trigger(data.type);
@@ -213,7 +213,7 @@
 
 	Myo = {
 		options : {
-			api_version : 2,
+			api_version : 3,
 			socket_url  : "ws://127.0.0.1:10138/myo/"
 		},
 		events : [],
