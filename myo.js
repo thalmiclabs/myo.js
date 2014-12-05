@@ -44,7 +44,6 @@
 		},
 		'orientation' : function(myo, data){
 			myo._lastQuant = data.orientation;
-			//console.log(data.orientation, myo.orientationOffset);
 			var imu_data = {
 				orientation : {
 					x : data.orientation.x - myo.orientationOffset.x,
@@ -93,7 +92,6 @@
 
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
-		//console.log(data);
 		if(Myo.myos[data.myo] && eventTable[data.type]){
 			eventTable[data.type](Myo.myos[data.myo], data);
 		}
