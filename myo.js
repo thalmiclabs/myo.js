@@ -193,7 +193,7 @@
 			}
 			else
 			{
-				yo.socket.send(JSON.stringify(["command", {
+				Myo.socket.send(JSON.stringify(["command", {
 					"command": "unlock", 
 					"myo": this.id, 
 					"type": "timed"
