@@ -112,7 +112,7 @@
 		}
 
 		var gyroGraph = createGraph('gyroscope', {x:0,y:0,z:0}, 600, 100);
-		var accelerationGraph = createGraph('accelerometer', {x:0,y:0,z:0}, 12, 100);
+		var accelerationGraph = createGraph('accelerometer', {x:0,y:0,z:0}, 5, 100);
 		var orientationGraph = createGraph('orientation', {x:0,y:0,z:0,w:0}, 1, 100);
 
 		myo.on('imu', function(data){
