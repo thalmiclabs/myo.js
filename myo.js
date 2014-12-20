@@ -87,6 +87,9 @@
 		'disconnected' : function(myo, data){
 			myo.isConnected = false;
 			myo.trigger(data.type, data);
+		},
+		'emg' : function(myo, data){
+			myo.trigger(data.type, data.emg)
 		}
 	};
 
@@ -203,6 +206,16 @@
 			Myo.socket.send(JSON.stringify(['command',{
 				"command": "request_rssi",
 				"myo": this.id
+			}]));
+			return this;
+		},
+		streamEMG : function(enabled){
+			var type = 'enabled';
+			if(enabled === false) type = 'disabled';
+			Myo.socket.send(JSON.stringify(['command',{
+				"command": "set_stream_emg",
+				"myo": this.id,
+				"type" : type
 			}]));
 			return this;
 		},

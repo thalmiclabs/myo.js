@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script>global=window</script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js"></script>
+		<script src='../myo.js'></script>
+
+		<style>
+			body{
+				background-color : #0A0A0A;
+				color : #84FFF1;
+				font-family: 'Open Sans', sans-serif;
+			}
+			.plot{
+				width:500px;
+				height:200px;
+				display : inline-block;
+			}
+
+			#events{
+				border : 1px solid #427F78;
+				font-family: courier;
+				overflow-y : scroll;
+				height : 800px;
+				width: 500px;
+			}
+			.event{
+				margin-bottom: 10px;
+			}
+			.event_data{
+				width: 440px;
+				font-size: 0.8em;
+				margin-left: 20px;
+				opacity: 0.8;
+				white-space: pre-wrap;
+				word-wrap: break-word;
+			}
+		</style>
+	</head>
+	<body>
+		<title>EMG Graphs - Myo.js</title>
+		<div style='display:inline-block'>
+			<div>Pod 0</div>
+			<div id='pod0' class='plot' ></div>
+		</div>
+		<div style='display:inline-block'>
+			<div>Pod 1</div>
+			<div id='pod1' class='plot' ></div>
+		</div>
+		<div style='display:inline-block'>
+			<div>Pod 2</div>
+			<div id='pod2' class='plot' ></div>
+		</div>
+		<div style='display:inline-block'>
+			<div>Pod 3</div>
+			<div id='pod3' class='plot' ></div>
+		</div>
+		<div style='display:inline-block'>
+			<div>Pod 4</div>
+			<div id='pod4' class='plot' ></div>
+		</div>
+
+		<div style='display:inline-block'>
+			<div>Pod 5</div>
+			<div id='pod5' class='plot' ></div>
+		</div>
+		<div style='display:inline-block'>
+			<div>Pod 6</div>
+			<div id='pod6' class='plot' ></div>
+		</div>
+		<div style='display:inline-block'>
+			<div>Pod 7</div>
+			<div id='pod7' class='plot' ></div>
+		</div>
+
+	</body>
+
+	<script>
+
+		var myo = Myo.create();
+
+		var createGraph = function(elementId, startingData, range, resolution){
+			var history = _.times(resolution, function(){
+				return startingData;
+			});
+			var graph = {
+				history : history,
+				getGraphData : function(){
+					var result = {};
+					_.each(this.history, function(data, index){
+						_.each(data, function(val, axis){
+							result[axis] = result[axis] || {label : axis, data : []};
+							result[axis].data.push([index, val])
+						});
+					});
+					return _.values(result);
+				},
+				addData : function(data){
+					this.history.push(data);
+					this.history = this.history.slice(1);
+					this.update();
+				},
+				update : function(){
+					this.plot.setData(this.getGraphData());
+					this.plot.draw()
+				},
+			};
+			graph.plot = $.plot("#" + elementId, graph.getGraphData(), {
+				series: {shadowSize: 0},
+				colors: [ '#84FFF1'],
+				xaxis: {
+					show: false,
+					min : 0,
+					max : resolution
+				},
+				yaxis : {
+					min : -range,
+					max : range
+				},
+				legend : {
+					show : false,
+				},
+				grid : {
+					borderColor : "#427F78"
+				}
+			});
+			return graph;
+		}
+
+		var podGraphs = _.times(8, function(num){
+			return createGraph('pod' + num, {data:0}, 128, 50);
+		})
+
+		var throttledEMGUpdate = _.throttle(function(data){
+			_.each(data, function(emgData, index){
+				podGraphs[index].addData({data:emgData});
+			})
+		}, 20);
+
+		myo.on('emg', function(data){
+			throttledEMGUpdate(data);
+		});
+
+		myo.on('connected', function(){
+			myo.streamEMG(true);
+		});
+	</script>
+
+</html>

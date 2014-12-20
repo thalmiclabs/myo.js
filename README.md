@@ -1,10 +1,10 @@
-**Note : ** If you are a bleeding-edge kind of developer, be sure to check out the [Experimental](https://github.com/stolksdorf/myo.js/tree/master/experimental) Myo.js features!
+Note : If you are a bleeding-edge kind of developer, be sure to check out the [Experimental](https://github.com/stolksdorf/myo.js/tree/master/experimental) Myo.js features!
 
 Like node? We do too. `npm install myo` will do what you need. [Check it out!](https://www.npmjs.org/package/myo)
 
 # Myo.js
 
-Myo.js allows website and javascript application talk with your Myo over websockets.
+Myo.js allows website and javascript application talk with your Myo over websockets on both the client and node.js applications.
 
 
 ## Getting Started
@@ -200,6 +200,22 @@ Requests the connection strength of the Myo to be sent. Listen to the `'bluetoot
 	});
 	myMyo.requestBluetoothStrength();
 
+
+**streamEMG** &nbsp; `myo.streamEMG(enabled)` <br>
+Tells the Myo to start or stop streaming EMG data. Pass nothing or `true` to enabled it and `false` to disabled it. Listen to the `emg` event for the data. **Note:** while streaming EMG data, gesture recognition might not be at it's best. This is being fixed in the near future.
+
+	myMyo.streamEMG(true);
+	myMyo.on('emg', function(data){
+		console.log(data);
+	});
+
+Requests the connection strength of the Myo to be sent. Listen to the `'bluetooth_strength'` event for the data.
+
+	myMyo.on('bluetooth_strength', function(val){
+		console.log('Such strength', val);
+	});
+	myMyo.requestBluetoothStrength();
+
 **timer** &nbsp; `myo.timer(on_off, duration, callback)` <br>
 Timer is useful for when you want a simple timeout for an action, such as holding a gesture for a period of time. `on_off` is a boolean that will create or disable the current timer with a duration of `duration` that will fire the `callback`.
 
@@ -249,6 +265,14 @@ This event is fired whenever we receive IMU data from the Myo. This data is grou
 		}
 	}
 
+**emg** &nbsp; `myo.on('emg', function(data){ ... })` <br>
+This event is fired whenever we receive EMG data from the Myo. In order to get this data you must first tell the myo you want it to stream EMG by using the `myo.streamEMG(true)` command. This data is an 8 element array (one for each pod) bounded from -127 to 127.
+
+	myMyo.streamEMG(true);
+	myMyo.on('emg', function(data){
+		console.log(data);
+	});
+
 **gyroscope** &nbsp; `myo.on('gyroscope', function(data){ ... })` <br>
 This event is fired whenever we receive gyroscopic data from the Myo. This data is grouped as 3d coordinates.
 
@@ -282,6 +306,11 @@ Fired whenever `myo.unlock()` is called. Useful for firing vibration events, or 
 
 
 # Changelog
+
+### 1.2.0 - Friday, 19/12/2014
+* Added raw EMG support!
+* Added a new EMG example
+* Happy Holidays!
 
 ### 1.1.2 - Friday, 05/12/2014
 * Added a second data parameter to most events
