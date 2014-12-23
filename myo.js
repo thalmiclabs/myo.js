@@ -192,7 +192,14 @@
 			this.trigger('zero_orientation');
 			return this;
 		},
-
+        setLockingPolicy: function (policy) {
+            policy = policy || "standard";
+            Myo.socket.send(JSON.stringify(['command',{
+                "command": "set_locking_policy",
+                "type": policy
+            }]));
+            return this;
+        },
 		vibrate : function(intensity){
 			intensity = intensity || 'medium';
 			Myo.socket.send(JSON.stringify(['command',{
