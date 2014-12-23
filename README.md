@@ -89,6 +89,28 @@ For more passive apps, it's useful to "lock" and "unlock" the Myo so that accide
 		myMyo.vibrate('short').vibrate('short');
 	});
 
+## Locking Policy
+
+The Myo now has a built in locking policy. The policy can be set by using `.setLockingPolicy`. Supported are "none" and "standard". Note that the `.lock()` call does not lock the Myo if the policy is set to "none"!
+
+    //Example for setting locking policy
+    myo.on('connected', function () {
+                myo.setLockingPolicy('none');
+    });
+
+    // Implement your own locking. Example: (Handle locking yourself like described above!!!!)
+    myo.on('double_tap', function (edge) {
+          if(edge){
+                if(!myo.isLocked)  {
+                    console.log("Lock");
+                    myo.lock();
+                }else {
+                    console.log("Unlock");
+                    myo.unlock();
+                }
+          }
+    });
+
 ## Node support
 
 Myo.js also works on node! It uses the [ws](https://www.npmjs.org/package/ws) package for doing WebSockets. You have to do nothing extra, Myo.js will figure out if it's on a server or not and run accordingly. `npm install myo` will do what you need. [Check it out!](https://www.npmjs.org/package/myo)
