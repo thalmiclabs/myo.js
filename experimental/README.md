@@ -17,14 +17,14 @@ You can control how sensitive this is by modifying the `myo.options.armbusy_thre
 
 
 
-### Double Tap
+### Myo Tap
 
-This adds a new event called `double_tap` which is emitted when the user quickly taps their Myo twice. We use peaks within the overall deltas of the IMU. You can change the sensitivy of the taps using `myo.options.doubleTap.threshold`. The taps have to be done within 80ms to 300ms, which you can configure using `myo.options.doubleTap.time`. Double tap uses the `myo.armIsBusy` boolean to greatly reduce the number of false positives.
+This adds a new event called `myo_tap` which is emitted when the user quickly taps their Myo twice. We use peaks within the overall deltas of the IMU. You can change the sensitivy of the taps using `myo.options.doubleTap.threshold`. The taps have to be done within 80ms to 300ms, which you can configure using `myo.options.doubleTap.time`. Myo tap uses the `myo.armIsBusy` boolean to greatly reduce the number of false positives.
 
-Double Tap is useful for locking or locking the Myo, or providing very contextual controls, such as a communicator tap in a video game.
+Myo Tap is useful for locking or locking the Myo, or providing very contextual controls, such as a communicator tap in a video game.
 
-	//Double tap to lock and unlock!
-	myMyo.on('double_tap', function(){
+	//Myo tap to lock and unlock!
+	myMyo.on('myo_tap', function(){
 		if(myMyo.isLocked){
 			myMyo.unlock();
 		}else{
