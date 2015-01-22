@@ -26,7 +26,7 @@
 	var getUniqueId = function(){
 		unique_counter++;
 		return new Date().getTime() + "" + unique_counter;
-	}
+	};
 
 
 	var eventTable = {
@@ -61,7 +61,7 @@
 					y : data.gyroscope[1],
 					z : data.gyroscope[2]
 				}
-			}
+			};
 			if(!myo.lastIMU) myo.lastIMU = imu_data;
 			myo.trigger('orientation',   imu_data.orientation);
 			myo.trigger('accelerometer', imu_data.accelerometer);
@@ -82,14 +82,14 @@
 		'connected' : function(myo, data){
 			myo.connect_version = data.version.join('.');
 			myo.isConnected = true;
-			myo.trigger(data.type, data)
+			myo.trigger(data.type, data);
 		},
 		'disconnected' : function(myo, data){
 			myo.isConnected = false;
 			myo.trigger(data.type, data);
 		},
 		'emg' : function(myo, data){
-			myo.trigger(data.type, data.emg)
+			myo.trigger(data.type, data.emg);
 		}
 	};
 
@@ -110,14 +110,14 @@
 		events.map(function(event){
 			if(event.name == eventName) event.fn.apply(self, args);
 			if(event.name == '*'){
-				args.unshift(eventName)
+				args.unshift(eventName);
 				event.fn.apply(self, args);
 			}
 		});
 		return this;
 	};
 	var on = function(events, name, fn){
-		var id = getUniqueId()
+		var id = getUniqueId();
 		events.push({
 			id   : id,
 			name : name,
@@ -155,7 +155,7 @@
 			return this;
 		},
 		on : function(eventName, fn){
-			return on(this.events, eventName, fn)
+			return on(this.events, eventName, fn);
 		},
 		off : function(eventName){
 			this.events = off(this.events, eventName);
@@ -165,7 +165,7 @@
 			if(status){
 				this.timeout = setTimeout(fn.bind(this), timeout);
 			}else{
-				clearTimeout(this.timeout)
+				clearTimeout(this.timeout);
 			}
 		},
 		lock : function(){
@@ -219,7 +219,7 @@
 			}]));
 			return this;
 		},
-	}
+	};
 
 
 	Myo = {
@@ -260,14 +260,14 @@
 			return Myo;
 		},
 		on : function(eventName, fn){
-			return on(Myo.events, eventName, fn)
+			return on(Myo.events, eventName, fn);
 		},
 		initSocket : function(){
 			Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
 			Myo.socket.onmessage = handleMessage;
 			Myo.socket.onerror = function(){
 				console.error('ERR: Myo.js had an error with the socket. Double check the API version.');
-			}
+			};
 		}
 	};
 	if(typeof module !== 'undefined') module.exports = Myo;
