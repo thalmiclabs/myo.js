@@ -170,6 +170,12 @@
 		},
 		lock : function(){
 			if(this.isLocked) return true;
+
+			Myo.socket.send(JSON.stringify(["command", {
+				"command": "lock", 
+				"myo": this.id
+			}]));
+
 			this.isLocked = true;
 			this.trigger('lock');
 			return this;
@@ -178,9 +184,23 @@
 			var self = this;
 			clearTimeout(this.lockTimeout);
 			if(timeout){
+				Myo.socket.send(JSON.stringify(["command", {
+					"command": "unlock", 
+					"myo": this.id, 
+					"type": "hold"
+				}]));
+
 				this.lockTimeout = setTimeout(function(){
 					self.lock();
 				}, timeout);
+			}
+			else
+			{
+				Myo.socket.send(JSON.stringify(["command", {
+					"command": "unlock", 
+					"myo": this.id, 
+					"type": "timed"
+				}]));
 			}
 			if(!this.isLocked) return this;
 			this.isLocked = false;
