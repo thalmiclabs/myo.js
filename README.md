@@ -202,9 +202,11 @@ Requests the connection strength of the Myo to be sent. Listen to the `'bluetoot
 
 
 **streamEMG** &nbsp; `myo.streamEMG(enabled)` <br>
-Tells the Myo to start or stop streaming EMG data. Pass nothing or `true` to enabled it and `false` to disabled it. Listen to the `emg` event for the data. **Note:** while streaming EMG data, gesture recognition might not be at it's best. This is being fixed in the near future.
+Tells the Myo to start or stop streaming EMG data. Myo.js must have a connected socket for this to work. Pass nothing or `true` to enabled it and `false` to disabled it. Listen to the `emg` event for the data. **Note:** while streaming EMG data, gesture recognition might not be at it's best. This is being fixed in the near future.
 
-	myMyo.streamEMG(true);
+	myMyo.on('connected', function(){
+		myMyo.streamEMG(true);
+	});
 	myMyo.on('emg', function(data){
 		console.log(data);
 	});
