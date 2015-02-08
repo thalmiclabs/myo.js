@@ -1,13 +1,19 @@
-Note : If you are a bleeding-edge kind of developer, be sure to check out the [Experimental](https://github.com/stolksdorf/myo.js/tree/master/experimental) Myo.js features!
-
-Like node? We do too. `npm install myo` will do what you need. [Check it out!](https://www.npmjs.org/package/myo)
-
-# Myo.js
-
 Myo.js allows website and javascript application talk with your Myo over websockets on both the client and node.js applications.
 
+# Installation
 
-## Getting Started
+	npm install myo
+
+Or just include the `myo.js` file in your project.
+
+## Experimental features
+
+Experimental features can be used by including `myo.experimental.js`. They are not gaunerated to work and may change often. You can read about the experimental features [here](experimental/README.md].
+
+# Change Log
+Releases are documented in [changelog.md](changelog.md)
+
+# Getting Started
 
 To start you need two things : Your very own Myo, and [Myo Connect Software](https://developer.thalmic.com/downloads). This software will run on your computer, and talk with the Myo. From here you can manage your connected myos, load in Lua scripts, and test out the pose recognition.
 
