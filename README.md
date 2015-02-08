@@ -13,7 +13,7 @@ On the browser, just include the `myo.js` file in your project.
 You have to do nothing extra, Myo.js will figure out if it's on a server or not and run accordingly.
 
 ## Experimental features
-Experimental features can be used by including `myo.experimental.js`. They are not guaranteed to work and may change often. You can read about the experimental features [here](experimental/README.md].
+Experimental features can be used by including `myo.experimental.js`. They are not guaranteed to work and may change often. You can read about the experimental features [here](experimental/README.md).
 
 # Change Log
 Releases are documented in [changelog.md](changelog.md)
