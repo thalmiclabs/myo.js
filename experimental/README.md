@@ -39,7 +39,7 @@ Using the orientation data with the `wave_in` and `wave_out` poses, we can creat
 
 
 
-### Positional Data
+### Positional Data (aka Rotational Vectors)
 
 Here we try and figure out where the user's Myo is pointing and how much their arm is rotated. A new event of `position` will fired fired whenever new IMU data comes in.
 
@@ -52,3 +52,9 @@ Here we try and figure out where the user's Myo is pointing and how much their a
 ### Nudges (Not implemented)
 
 Nudges are identified by peaks in accelermoter data. They are emitted in 6 directions; `nudge_up`, `nudge_down`, `nudge_left`, `nudge_right`, `nudge_clockwise`, `nudge_counterclockwise`. The intensity of the nudge is passed along with the event.
+
+### Zone Detection (not implemented)
+
+The myo will identify when the user's arm is in one of three 'zones': active (around chest level), upper (shoulders and above), and lower (down be side).
+
+A developer can use these to filter gestures or activity to give the user a better experience.

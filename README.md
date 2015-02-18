@@ -1,14 +1,24 @@
-Note : If you are a bleeding-edge kind of developer, be sure to check out the [Experimental](https://github.com/stolksdorf/myo.js/tree/master/experimental) Myo.js features!
-
-Like node? We do too. `npm install myo` will do what you need. [Check it out!](https://www.npmjs.org/package/myo)
-
-# Myo.js
-
 Myo.js allows website and javascript application talk with your Myo over websockets on both the client and node.js applications.
 
+# Installation
 
-## Getting Started
+On node.js
 
+	npm install myo
+
+It uses the [ws](https://www.npmjs.org/package/ws) package for doing WebSockets on the server.
+
+On the browser, just include the `myo.js` file in your project.
+
+You have to do nothing extra, Myo.js will figure out if it's on a server or not and run accordingly.
+
+## Experimental features
+Experimental features can be used by including `myo.experimental.js`. They are not guaranteed to work and may change often. You can read about the experimental features [here](experimental/README.md).
+
+# Change Log
+Releases are documented in [changelog.md](changelog.md)
+
+# Getting Started
 To start you need two things : Your very own Myo, and [Myo Connect Software](https://developer.thalmic.com/downloads). This software will run on your computer, and talk with the Myo. From here you can manage your connected myos, load in Lua scripts, and test out the pose recognition.
 
 Once those and installed and setup, you can just drop the Myo.js library into a webpage and start developing with Myo. Any user with Myo Connect running that visits your webpage/runs your app can user their Myo with your application.
@@ -224,9 +234,11 @@ Requests the connection strength of the Myo to be sent. Listen to the `'bluetoot
 
 
 **streamEMG** &nbsp; `myo.streamEMG(enabled)` <br>
-Tells the Myo to start or stop streaming EMG data. Pass nothing or `true` to enabled it and `false` to disabled it. Listen to the `emg` event for the data. **Note:** while streaming EMG data, gesture recognition might not be at it's best. This is being fixed in the near future.
+Tells the Myo to start or stop streaming EMG data. Myo.js must have a connected socket for this to work. Pass nothing or `true` to enabled it and `false` to disabled it. Listen to the `emg` event for the data. **Note:** while streaming EMG data, gesture recognition might not be at it's best. This is being fixed in the near future.
 
-	myMyo.streamEMG(true);
+	myMyo.on('connected', function(){
+		myMyo.streamEMG(true);
+	});
 	myMyo.on('emg', function(data){
 		console.log(data);
 	});
@@ -325,29 +337,3 @@ Fired whenever `myo.lock()` is called. Useful for firing vibration events, or up
 
 **unlock** &nbsp; `myo.on('unlock', function(){ ... })` <br>
 Fired whenever `myo.unlock()` is called. Useful for firing vibration events, or updating UI when the Myo becomes unlocked.
-
-
-# Changelog
-
-### 1.2.0 - Friday, 19/12/2014
-* Added raw EMG support!
-* Added a new EMG example
-* Happy Holidays!
-
-### 1.1.2 - Friday, 05/12/2014
-* Added a second data parameter to most events
-* Added a nice example showing off graphing IMU data and event streams
-* Removed the empty Myo.ui stuff
-
-### 1.1.1 - Thursday, 04/12/2014
-
-* Renamed `arm_recognized` event to `arm_synced`
-* Renamed `arm_lost` event to `arm_unsynced`
-* Updated `Myo.options.api_version` to `3` to work with the newly released firmware.
-
-### 1.1.0 - Monday, 17/11/2014
-
-* Renamed `Myo.start()` to `Myo.initSocket()`
-* Myo.js now tries to create the socket when you create Myo instances. This allows developers to modify `Myo.options` before the socket is created. Useful for controlling API versions.
-* Added error handling messages on the socket.
-* Updated `Myo.options.api_version` to `2` to work with the newly released firmware.

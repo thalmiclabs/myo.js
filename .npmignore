@@ -1,4 +1,7 @@
 .git*
-demo.html
+/node_modules/*
+/node_modules/*/
+/examples/*
+/examples/*/
 README.md
-ui/*
+changelog.md
