@@ -28,6 +28,24 @@
 		return new Date().getTime() + "" + unique_counter;
 	};
 
+	var quatInverse = function(q) {
+		var len = Math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)
+		return {
+			w: q.w/len,
+			x: -q.x/len,
+			y: -q.y/len,
+			z: -q.z/len
+		};
+	};
+	var quatRotate = function(q, r) {
+		return {
+			w: q.w * r.w - q.x * r.x - q.y * r.y - q.z * r.z,
+			x: q.w * r.x + q.x * r.w + q.y * r.z - q.z * r.y,
+			y: q.w * r.y - q.x * r.z + q.y * r.w + q.z * r.x,
+			z: q.w * r.z + q.x * r.y - q.y * r.x + q.z * r.w
+		};
+	};
+
 
 	var eventTable = {
 		'pose' : function(myo, data){
@@ -44,13 +62,9 @@
 		},
 		'orientation' : function(myo, data){
 			myo._lastQuant = data.orientation;
+			ori = quatRotate(myo.orientationOffset, data.orientation);
 			var imu_data = {
-				orientation : {
-					x : data.orientation.x - myo.orientationOffset.x,
-					y : data.orientation.y - myo.orientationOffset.y,
-					z : data.orientation.z - myo.orientationOffset.z,
-					w : data.orientation.w - myo.orientationOffset.w
-				},
+				orientation : ori,
 				accelerometer : {
 					x : data.accelerometer[0],
 					y : data.accelerometer[1],
@@ -141,7 +155,7 @@
 	var myoInstance = {
 		isLocked : false,
 		isConnected : false,
-		orientationOffset : {x : 0,y : 0,z : 0,w : 0},
+		orientationOffset : {x : 0,y : 0,z : 0,w : 1},
 		lastIMU : undefined,
 		socket : undefined,
 		arm : undefined,
@@ -208,7 +222,7 @@
 			return this;
 		},
 		zeroOrientation : function(){
-			this.orientationOffset = this._lastQuant;
+			this.orientationOffset = quatInverse(this._lastQuant);
 			this.trigger('zero_orientation');
 			return this;
 		},
