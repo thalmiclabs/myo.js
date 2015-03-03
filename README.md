@@ -1,38 +1,45 @@
-Myo.js allows website and javascript application talk with your Myo over websockets on both the client and node.js applications.
+[![NPM](https://nodei.co/npm/myo.png)](https://nodei.co/npm/myo/)
 
-# Installation
+# myo.js
+Myo javascript bindings.
+
+Myo.js allows you to interact with Thalmic Labs's [Myo Gesture Control Armband](myo.com) using websocekts. Listen for IMU, EMG, and gesture events, as well as controlling vibration and locking.
+
+
+# getting started
+You'll need:
+
+* a Myo
+* [Myo Connect](https://developer.thalmic.com/downloads)
+* this library
+
+	var Myo = require('myo');
+
+	var myMyo = Myo.create();
+	myMyo.on('fist', function(edge){
+		if(!edge) return;
+		console.log('Hello Myo!');
+		myMyo.vibrate();
+	});
+
+
+# installation
+On the browser, just include the `myo.js` file in your project. `Myo` will be global.
 
 On node.js
 
 	npm install myo
 
-It uses the [ws](https://www.npmjs.org/package/ws) package for doing WebSockets on the server.
 
-On the browser, just include the `myo.js` file in your project.
+# experimental features
+The Myo is a new kind of device that requires new ways to think about human computer interaction. We'll be sharing some experimental features we're working on. You can use these by including `myo.experimental.js`. They are not guaranteed to work and may change often. You can read about the experimental features [here](experimental/README.md).
 
-You have to do nothing extra, Myo.js will figure out if it's on a server or not and run accordingly.
 
-## Experimental features
-Experimental features can be used by including `myo.experimental.js`. They are not guaranteed to work and may change often. You can read about the experimental features [here](experimental/README.md).
 
-# Change Log
-Releases are documented in [changelog.md](changelog.md)
 
-# Getting Started
-To start you need two things : Your very own Myo, and [Myo Connect Software](https://developer.thalmic.com/downloads). This software will run on your computer, and talk with the Myo. From here you can manage your connected myos, load in Lua scripts, and test out the pose recognition.
+# usage
 
-Once those and installed and setup, you can just drop the Myo.js library into a webpage and start developing with Myo. Any user with Myo Connect running that visits your webpage/runs your app can user their Myo with your application.
-
-Try this out!
-
-	var myMyo = Myo.create();
-	myMyo.on('fingers_spread', function(edge){
-		if(!edge) return;
-		alert('Hello Myo!');
-		myMyo.vibrate();
-	});
-
-## Creating a Myo Instance
+## creating a myo instance
 
 The Myo.js library can be access through the `Myo` variable. This is the core library and be used to create new Myo instances, trigger global events, amongst other things. To create a new Myo object use the `Myo.create()` function. This function can two parameters: an id (used for multi-Myo support), and specific options for that Myo.
 
@@ -43,7 +50,7 @@ The Myo.js library can be access through the `Myo` variable. This is the core li
 Commands and events used with these instances are specific to that Myo. You can create Myo instances for Myo that aren't connected yet. For example if your app uses an optional second Myo, create two instances, and listen for the `connected` event on the second one to enable dual Myo support.
 
 
-## Creating Listeners
+## creating listeners
 
 Myo.js is all about events. Whenever we receive data from the Myo, we'll filter through and emit contextual events. You create listeners to these events using the `myo.on()` function.
 
@@ -59,12 +66,7 @@ Myo.js is all about events. Whenever we receive data from the Myo, we'll filter 
 		}
 	});
 
-
-## Simple Actions
-
-Here are some techniques to get you started.
-
-### Holding Poses
+## holding poses
 
 To reduce the number of false positives, it's useful to react when the user holds a pose, rather than as soon as it's fired. We've provided a handy function, `myo.timer()` to make writing this as easy as possible. The function takes three parameters: A boolean to turn the timer off and on, a duration in milliseconds, and a function to run.
 
@@ -75,7 +77,7 @@ To reduce the number of false positives, it's useful to react when the user hold
 		})
 	});
 
-### Locking
+## locking
 
 For more passive apps, it's useful to "lock" and "unlock" the Myo so that accidental actions aren't picked up. We provide `.lock()` and `.unlock()` functions, `lock` and `unlock` events, and a `myo.isLocked` boolean. Myo.js doesn't implement any logic for locking and unlocking the Myo, that's up to you.
 
@@ -99,41 +101,33 @@ For more passive apps, it's useful to "lock" and "unlock" the Myo so that accide
 		myMyo.vibrate('short').vibrate('short');
 	});
 
-## Locking Policy
+## locking policy
 
 The Myo now has a built in locking policy. The policy can be set by using `.setLockingPolicy`. Supported are "none" and "standard". Note that the `.lock()` call does not lock the Myo if the policy is set to "none"!
 
-    //Example for setting locking policy
-    myo.on('connected', function () {
-                myo.setLockingPolicy('none');
-    });
+	//Example for setting locking policy
+	myo.on('connected', function () {
+		myo.setLockingPolicy('none');
+	});
 
-    // Implement your own locking. Example: (Handle locking yourself like described above!!!!)
-    myo.on('double_tap', function (edge) {
-          if(edge){
-                if(!myo.isLocked)  {
-                    console.log("Lock");
-                    myo.lock();
-                }else {
-                    console.log("Unlock");
-                    myo.unlock();
-                }
-          }
-    });
-
-## Node support
-
-Myo.js also works on node! It uses the [ws](https://www.npmjs.org/package/ws) package for doing WebSockets. You have to do nothing extra, Myo.js will figure out if it's on a server or not and run accordingly. `npm install myo` will do what you need. [Check it out!](https://www.npmjs.org/package/myo)
+	// Implement your own locking. Example: (Handle locking yourself like described above!!!!)
+	myo.on('double_tap', function (edge) {
+		if(edge){
+			if(!myo.isLocked)  {
+				console.log("Lock");
+				myo.lock();
+			}else {
+				console.log("Unlock");
+				myo.unlock();
+			}
+		}
+	});
 
 
-## Final Touches
-
-Before you run off and built a Minority Report like interface, be sure to skim the reference below to see everything your Myo can do. If your itching for some assets and images to use you can grab our [branding](https://developer.thalmic.com/branding/) and [UX](https://developer.thalmic.com/ux/) guidelines here. Have fun!
 
 
-# Reference
 
-## Myo Core
+# myo core
 
 **options** &nbsp; `Myo.options` <br>
 Here you can review and set the default options that will be used for each Myo instance.
@@ -157,10 +151,10 @@ Creates a global listener for each Myo instance for the given event. The `callba
 **initSocket** &nbsp; `Myo.initSocket()` <br>
 Creates web socket and sets up the message listener. Called implictly whenever you create a new myo instance.
 
-## Myo Instance
-A Myo instance is an individual Myo create using this library.
 
-### Data
+
+
+# myo data
 **id** &nbsp; `myo.id` <br>
 Stores the id of the Myo.
 
@@ -185,7 +179,11 @@ Stores a boolean on whether the Myo is currently connected.
 **isLocked** &nbsp; `myo.isLocked` <br>
 Stores a boolean on whether the Myo is currently locked.
 
-### Functions
+
+
+
+
+# myo functions
 
 **on** &nbsp; `myo.on(eventName, function(arg1, arg2,...))` <br>
 On sets up a listener for a specific event name. Whenever that event is triggered, each function added with `on()`, will be called with whatever arguments `trigger()` was called with. Returns a unique event id for this listener.
@@ -262,7 +260,7 @@ Timer is useful for when you want a simple timeout for an action, such as holdin
 
 
 
-## Events
+# events
 You can create listeners to the events by using the `myo.on()` function. You can even fire your own events using `myo.trigger()`.
 
 **connected** &nbsp; `myo.on('connected', function(){ ... })` <br>
@@ -337,3 +335,13 @@ Fired whenever `myo.lock()` is called. Useful for firing vibration events, or up
 
 **unlock** &nbsp; `myo.on('unlock', function(){ ... })` <br>
 Fired whenever `myo.unlock()` is called. Useful for firing vibration events, or updating UI when the Myo becomes unlocked.
+
+
+# changelog
+Releases are documented in [changelog.md](changelog.md)
+
+# branding and assets
+You can use assets provided in our [branding](https://developer.thalmic.com/branding/) and [UX](https://developer.thalmic.com/ux/) guidelines.
+
+# thanks
+Thanks to [stolksdorf](https://github.com/stolksdorf) for creating Myo.js
