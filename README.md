@@ -1,6 +1,6 @@
+# myo.js
 [![NPM](https://nodei.co/npm/myo.png)](https://nodei.co/npm/myo/)
 
-# myo.js
 Myo javascript bindings.
 
 Myo.js allows you to interact with Thalmic Labs's [Myo Gesture Control Armband](myo.com) using websocekts. Listen for IMU, EMG, and gesture events, as well as controlling vibration and locking.

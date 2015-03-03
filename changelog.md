@@ -1,7 +1,7 @@
 # Changelog
 
 ### 1.4.0 - Tuesday, 03/03/2015
-* Moved repo over to ThalmicLabs
+* Moved repo and npm module over to ThalmicLabs
 * Improved the doc structure (again)
 * Moved the existing issues over
 * Updated the locking policy (thanks andrebower!)
