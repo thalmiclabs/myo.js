@@ -7,11 +7,7 @@ Myo.js allows you to interact with Thalmic Labs's [Myo Gesture Control Armband](
 
 
 # getting started
-You'll need:
-
-* a Myo
-* [Myo Connect](https://developer.thalmic.com/downloads)
-* this library
+You'll need a [Myo](myo.com) and [Myo Connect](https://developer.thalmic.com/downloads)
 
 	var Myo = require('myo');
 
@@ -39,7 +35,7 @@ The Myo is a new kind of device that requires new ways to think about human comp
 
 # usage
 
-## creating a myo instance
+### creating a myo instance
 
 The Myo.js library can be access through the `Myo` variable. This is the core library and be used to create new Myo instances, trigger global events, amongst other things. To create a new Myo object use the `Myo.create()` function. This function can two parameters: an id (used for multi-Myo support), and specific options for that Myo.
 
@@ -50,7 +46,7 @@ The Myo.js library can be access through the `Myo` variable. This is the core li
 Commands and events used with these instances are specific to that Myo. You can create Myo instances for Myo that aren't connected yet. For example if your app uses an optional second Myo, create two instances, and listen for the `connected` event on the second one to enable dual Myo support.
 
 
-## creating listeners
+### creating listeners
 
 Myo.js is all about events. Whenever we receive data from the Myo, we'll filter through and emit contextual events. You create listeners to these events using the `myo.on()` function.
 
@@ -66,7 +62,7 @@ Myo.js is all about events. Whenever we receive data from the Myo, we'll filter 
 		}
 	});
 
-## holding poses
+### holding poses
 
 To reduce the number of false positives, it's useful to react when the user holds a pose, rather than as soon as it's fired. We've provided a handy function, `myo.timer()` to make writing this as easy as possible. The function takes three parameters: A boolean to turn the timer off and on, a duration in milliseconds, and a function to run.
 
@@ -77,7 +73,7 @@ To reduce the number of false positives, it's useful to react when the user hold
 		})
 	});
 
-## locking
+### locking
 
 For more passive apps, it's useful to "lock" and "unlock" the Myo so that accidental actions aren't picked up. We provide `.lock()` and `.unlock()` functions, `lock` and `unlock` events, and a `myo.isLocked` boolean. Myo.js doesn't implement any logic for locking and unlocking the Myo, that's up to you.
 
@@ -101,7 +97,7 @@ For more passive apps, it's useful to "lock" and "unlock" the Myo so that accide
 		myMyo.vibrate('short').vibrate('short');
 	});
 
-## locking policy
+### locking policy
 
 The Myo now has a built in locking policy. The policy can be set by using `.setLockingPolicy`. Supported are "none" and "standard". Note that the `.lock()` call does not lock the Myo if the policy is set to "none"!
 
