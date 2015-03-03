@@ -1,5 +1,12 @@
 # Changelog
 
+### 1.4.0 - Tuesday, 03/03/2015
+* Moved repo over to ThalmicLabs
+* Improved the doc structure (again)
+* Moved the existing issues over
+* Updated the locking policy (thanks andrebower!)
+* Added better quaternion math (thanks freehaha!)
+
 ### 1.3.0 - Sunday, 08/02/2015
 * Better doc structure
 * Merged in BrianHeese's pull request for the locking policy change (thanks!)

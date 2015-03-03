@@ -12,17 +12,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/stolksdorf/myo.js.git"
+    "url": "git://github.com/thalmiclabs/myo.js.git"
   },
   "keywords": [
     "myo",
     "thalmic",
     "myojs"
   ],
-  "author": "stolksdorf",
+  "author": "thalmiclabs",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/stolksdorf/myo.js/issues"
+    "url": "https://github.com/thalmiclabs/myo.js/issues"
   },
-  "homepage": "https://github.com/stolksdorf/myo.js"
+  "homepage": "https://github.com/thalmiclabs/myo.js"
 }
