@@ -3,7 +3,7 @@
 
 Myo javascript bindings.
 
-Myo.js allows you to interact with Thalmic Labs's [Myo Gesture Control Armband](http://myo.com) using websocekts. Listen for IMU, EMG, and gesture events, as well as controlling vibration and locking.
+Myo.js allows you to interact with Thalmic Labs's [Myo Gesture Control Armband](http://myo.com) using websockets. Listen for IMU, EMG, and gesture events, as well as controlling vibration and locking.
 
 
 # getting started
