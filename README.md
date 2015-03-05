@@ -341,3 +341,7 @@ You can use assets provided in our [branding](https://developer.thalmic.com/bran
 
 # thanks
 Thanks to [stolksdorf](https://github.com/stolksdorf) for creating Myo.js
+
+## license
+
+The Myo.js project is licensed using the modified BSD license. For more details, please see LICENSE.txt.
