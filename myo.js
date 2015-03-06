@@ -49,10 +49,8 @@
 
 	var eventTable = {
 		'pose' : function(myo, data){
-			if(myo.lastPose != 'rest' && data.pose == 'rest'){
-				myo.trigger(myo.lastPose, false);
-				myo.trigger('pose', myo.lastPose, false);
-			}
+			myo.trigger(myo.lastPose, false);
+			myo.trigger('pose', myo.lastPose, false);
 			myo.trigger(data.pose, true);
 			myo.trigger('pose', data.pose, true);
 			myo.lastPose = data.pose;
