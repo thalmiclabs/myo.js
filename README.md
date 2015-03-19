@@ -338,6 +338,9 @@ Fired whenever `myo.lock()` is called. Useful for firing vibration events, or up
 **unlock** &nbsp; `myo.on('unlock', function(){ ... })` <br>
 Fired whenever `myo.unlock()` is called. Useful for firing vibration events, or updating UI when the Myo becomes unlocked.
 
+**status** &nbsp; `myo.on('status', function(){ ... })` <br>
+Fired whenever a non-pose, non-IMU, non-EMG event is fired. Useful for making debug windows, without being flooded by IMU events.
+
 
 # changelog
 Releases are documented in [changelog.md](changelog.md)

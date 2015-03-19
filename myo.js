@@ -81,34 +81,43 @@
 			myo.trigger('imu',           imu_data);
 			myo.lastIMU = imu_data;
 		},
+		'emg' : function(myo, data){
+			myo.trigger(data.type, data.emg);
+		},
 		'arm_synced' : function(myo, data){
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
 			myo.trigger(data.type, data);
+			myo.trigger('status', data);
 		},
 		'arm_unsynced' : function(myo, data){
 			myo.arm = undefined;
 			myo.direction = undefined;
 			myo.trigger(data.type, data);
+			myo.trigger('status', data);
 		},
 		'connected' : function(myo, data){
 			myo.connect_version = data.version.join('.');
 			myo.isConnected = true;
 			myo.trigger(data.type, data);
+			myo.trigger('status', data);
 		},
 		'disconnected' : function(myo, data){
 			myo.isConnected = false;
 			myo.trigger(data.type, data);
-		},
-		'emg' : function(myo, data){
-			myo.trigger(data.type, data.emg);
+			myo.trigger('status', data);
 		}
+
 	};
 
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
-		if(Myo.myos[data.myo] && eventTable[data.type]){
-			eventTable[data.type](Myo.myos[data.myo], data);
+		if(Myo.myos[data.myo]){
+			if(eventTable[data.type]){
+				eventTable[data.type](Myo.myos[data.myo], data);
+			}else{
+				Myo.myos[data.myo].trigger('status', data)
+			}
 		}
 	};
 
@@ -205,9 +214,7 @@
 				this.lockTimeout = setTimeout(function(){
 					self.lock();
 				}, timeout);
-			}
-			else
-			{
+			} else {
 				Myo.socket.send(JSON.stringify(["command", {
 					"command": "unlock",
 					"myo": this.id,
@@ -224,14 +231,14 @@
 			this.trigger('zero_orientation');
 			return this;
 		},
-        setLockingPolicy: function (policy) {
-            policy = policy || "standard";
-            Myo.socket.send(JSON.stringify(['command',{
-                "command": "set_locking_policy",
-                "type": policy
-            }]));
-            return this;
-        },
+		setLockingPolicy: function (policy) {
+			policy = policy || "standard";
+			Myo.socket.send(JSON.stringify(['command',{
+				"command": "set_locking_policy",
+				"type": policy
+			}]));
+			return this;
+		},
 		vibrate : function(intensity){
 			intensity = intensity || 'medium';
 			Myo.socket.send(JSON.stringify(['command',{
