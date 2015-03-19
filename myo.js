@@ -276,9 +276,10 @@
 		 * @return {myo}
 		 */
 		create : function(id, options){
-			if(!Myo.socket) Myo.initSocket();
-
 			if(!id) id = 0;
+			if(Myo.myos[id]) return Myo.myos[id];
+
+			if(!Myo.socket) Myo.initSocket();
 			if(typeof id === "object") options = id;
 			options = options || {};
 

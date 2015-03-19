@@ -2,6 +2,7 @@
 
 ### 1.5.0 - Thursday, 19/03/2015
 * Added a `Myo.onError` function you can overwrite which will trigger if Myo.js can't make a connection with Myo Connect.
+* Creating mutliple instances of a myo wiht the same id won;t clobber connection information now.
 
 
 ### 1.4.0 - Tuesday, 03/03/2015
