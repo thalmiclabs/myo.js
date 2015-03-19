@@ -134,8 +134,9 @@
 		events.map(function(event){
 			if(event.name == eventName) event.fn.apply(self, args);
 			if(event.name == '*'){
-				args.unshift(eventName);
-				event.fn.apply(self, args);
+				var args_temp = args.slice(0);
+				args_temp.unshift(eventName);
+				event.fn.apply(self, args_temp);
 			}
 		});
 		return this;
