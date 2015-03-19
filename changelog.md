@@ -4,6 +4,7 @@
 * Added a `Myo.onError` function you can overwrite which will trigger if Myo.js can't make a connection with Myo Connect.
 * Creating mutliple instances of a myo with the same id won't clobber connection information now.
 * Adding a new `status` event that gets triggered for any non-pose, non-IMU, and non-EMG event from the Myo. Useful for debug windows. This will also future-proof the library if new Myo Connect events get added.
+* On connect Myo.js now merges in all values from the data packet into the myo object. This is to future-proof additional properities Myo Connect may return.
 
 
 ### 1.4.0 - Tuesday, 03/03/2015

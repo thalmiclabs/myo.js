@@ -99,6 +99,9 @@
 		'connected' : function(myo, data){
 			myo.connect_version = data.version.join('.');
 			myo.isConnected = true;
+			for(var attr in data){
+				myo[attr] = data[attr];
+			}
 			myo.trigger(data.type, data);
 			myo.trigger('status', data);
 		},
