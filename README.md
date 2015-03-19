@@ -147,7 +147,13 @@ Creates a global listener for each Myo instance for the given event. The `callba
 **initSocket** &nbsp; `Myo.initSocket()` <br>
 Creates web socket and sets up the message listener. Called implictly whenever you create a new myo instance.
 
+**onError** &nbsp; `Myo.onError` <br>
+`Myo.onError` is triggered whenever Myo.js can't establish a connection to Myo Connect. This could be that it's not running, or that your API version is out of date. You can override this function with a function of your choice.
 
+	Myo.onError = function(){
+		console.log("Woah, couldn't connect to Myo Connect");
+	}
+	Myo.create();
 
 
 # myo data

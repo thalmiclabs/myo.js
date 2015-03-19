@@ -184,7 +184,7 @@
 			if(this.isLocked) return true;
 
 			Myo.socket.send(JSON.stringify(["command", {
-				"command": "lock", 
+				"command": "lock",
 				"myo": this.id
 			}]));
 
@@ -197,8 +197,8 @@
 			clearTimeout(this.lockTimeout);
 			if(timeout){
 				Myo.socket.send(JSON.stringify(["command", {
-					"command": "unlock", 
-					"myo": this.id, 
+					"command": "unlock",
+					"myo": this.id,
 					"type": "hold"
 				}]));
 
@@ -209,8 +209,8 @@
 			else
 			{
 				Myo.socket.send(JSON.stringify(["command", {
-					"command": "unlock", 
-					"myo": this.id, 
+					"command": "unlock",
+					"myo": this.id,
 					"type": "timed"
 				}]));
 			}
@@ -290,6 +290,10 @@
 			return newMyo;
 		},
 
+		onError : function(){
+			throw 'Myo.js had an error with the socket. Myo Connect might not be running. If it is, double check the API version.';
+		},
+
 		/**
 		 * Event functions
 		 */
@@ -304,9 +308,7 @@
 		initSocket : function(){
 			Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
 			Myo.socket.onmessage = handleMessage;
-			Myo.socket.onerror = function(){
-				console.error('ERR: Myo.js had an error with the socket. Double check the API version.');
-			};
+			Myo.socket.onerror = Myo.onError;
 		}
 	};
 	if(typeof module !== 'undefined') module.exports = Myo;

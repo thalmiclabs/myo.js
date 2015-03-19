@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.5.0 - Thursday, 19/03/2015
+* Added a `Myo.onError` function you can overwrite which will trigger if Myo.js can't make a connection with Myo Connect.
+
+
 ### 1.4.0 - Tuesday, 03/03/2015
 * Moved repo and npm module over to ThalmicLabs
 * Improved the doc structure (again)
