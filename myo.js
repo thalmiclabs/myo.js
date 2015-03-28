@@ -82,7 +82,7 @@
 			myo.lastIMU = imu_data;
 		},
 		'emg' : function(myo, data){
-			myo.trigger(data.type, data.emg);
+			myo.trigger(data.type, data.emg, data.timestamp);
 		},
 		'arm_synced' : function(myo, data){
 			myo.arm = data.arm;
@@ -268,7 +268,7 @@
 				"type" : type
 			}]));
 			return this;
-		},
+		}
 	};
 
 
