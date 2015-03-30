@@ -143,6 +143,14 @@ Creates a global listener for each Myo instance for the given event. The `callba
 	Myo.on('connected', function(){
 		console.log('connected!', this.id)
 	});
+	
+Every event is sent with a timestamp in microseconds. Thus, the full signature of the 'connected' event above, would look like this:
+	
+	Myo.on('connected', function(data, timestamp){
+		console.log('connected!', this.id)
+	});
+	
+Of course, declaration of parameters are optional in callbacks.
 
 **initSocket** &nbsp; `Myo.initSocket()` <br>
 Creates web socket and sets up the message listener. Called implictly whenever you create a new myo instance.
