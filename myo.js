@@ -29,7 +29,7 @@
 	};
 
 	var quatInverse = function(q) {
-		var len = Math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)
+		var len = Math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
 		return {
 			w: q.w/len,
 			x: -q.x/len,
@@ -49,14 +49,14 @@
 
 	var eventTable = {
 		'pose' : function(myo, data){
-			myo.trigger(myo.lastPose, false);
-			myo.trigger('pose', myo.lastPose, false);
-			myo.trigger(data.pose, true);
-			myo.trigger('pose', data.pose, true);
+			myo.trigger(myo.lastPose, false, data.timestamp);
+			myo.trigger('pose', myo.lastPose, false, data.timestamp);
+			myo.trigger(data.pose, true, data.timestamp);
+			myo.trigger('pose', data.pose, true, data.timestamp);
 			myo.lastPose = data.pose;
 		},
 		'rssi' : function(myo, data){
-			myo.trigger('bluetooth_strength', data.rssi);
+			myo.trigger('bluetooth_strength', data.rssi, data.timestamp);
 		},
 		'orientation' : function(myo, data){
 			myo._lastQuant = data.orientation;
@@ -75,26 +75,26 @@
 				}
 			};
 			if(!myo.lastIMU) myo.lastIMU = imu_data;
-			myo.trigger('orientation',   imu_data.orientation);
-			myo.trigger('accelerometer', imu_data.accelerometer);
-			myo.trigger('gyroscope',     imu_data.gyroscope);
-			myo.trigger('imu',           imu_data);
+			myo.trigger('orientation',   imu_data.orientation, data.timestamp);
+			myo.trigger('accelerometer', imu_data.accelerometer, data.timestamp);
+			myo.trigger('gyroscope',     imu_data.gyroscope, data.timestamp);
+			myo.trigger('imu',           imu_data, data.timestamp);
 			myo.lastIMU = imu_data;
 		},
 		'emg' : function(myo, data){
-			myo.trigger(data.type, data.emg);
+			myo.trigger(data.type, data.emg, data.timestamp);
 		},
 		'arm_synced' : function(myo, data){
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
-			myo.trigger(data.type, data);
-			myo.trigger('status', data);
+			myo.trigger(data.type, data, data.timestamp);
+			myo.trigger('status', data, data.timestamp);
 		},
 		'arm_unsynced' : function(myo, data){
 			myo.arm = undefined;
 			myo.direction = undefined;
-			myo.trigger(data.type, data);
-			myo.trigger('status', data);
+			myo.trigger(data.type, data, data.timestamp);
+			myo.trigger('status', data, data.timestamp);
 		},
 		'connected' : function(myo, data){
 			myo.connect_version = data.version.join('.');
@@ -102,13 +102,13 @@
 			for(var attr in data){
 				myo[attr] = data[attr];
 			}
-			myo.trigger(data.type, data);
-			myo.trigger('status', data);
+			myo.trigger(data.type, data, data.timestamp);
+			myo.trigger('status', data, data.timestamp);
 		},
 		'disconnected' : function(myo, data){
 			myo.isConnected = false;
-			myo.trigger(data.type, data);
-			myo.trigger('status', data);
+			myo.trigger(data.type, data, data.timestamp);
+			myo.trigger('status', data, data.timestamp);
 		}
 
 	};
@@ -119,7 +119,7 @@
 			if(eventTable[data.type]){
 				eventTable[data.type](Myo.myos[data.myo], data);
 			}else{
-				Myo.myos[data.myo].trigger('status', data)
+				Myo.myos[data.myo].trigger('status', data, data.timestamp);
 			}
 		}
 	};
@@ -268,7 +268,7 @@
 				"type" : type
 			}]));
 			return this;
-		},
+		}
 	};
 
 
