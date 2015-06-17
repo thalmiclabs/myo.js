@@ -194,7 +194,7 @@
 			}
 		},
 		lock : function(){
-			if(this.isLocked) return true;
+			if(this.isLocked) return this;
 
 			Myo.socket.send(JSON.stringify(["command", {
 				"command": "lock",
