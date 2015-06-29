@@ -28,7 +28,7 @@ Myo Tap is useful for locking or locking the Myo, or providing very contextual c
 		if(myMyo.isLocked){
 			myMyo.unlock();
 		}else{
-			myMyo.unlock();
+			myMyo.lock();
 		}
 	});
 
