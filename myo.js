@@ -9,36 +9,18 @@
 	}
 
 
+	/**
+		Myo Root Object
+	**/
+
 	Myo = {
-		options : {
+		defaults : {
 			api_version : 3,
-			socket_url  : "ws://127.0.0.1:10138/myo/"
+			socket_url  : "ws://127.0.0.1:10138/myo/",
 		},
+
 		events : [],
 		myos : [],
-
-		/**
-		 * Myo Constructor
-		 * @param  {number} id
-		 * @param  {object} options
-		 * @return {myo}
-		 *
-		create : function(id, options){
-			if(!id) id = 0;
-			if(Myo.myos[id]) return Myo.myos[id];
-
-			if(!Myo.socket) Myo.initSocket();
-			if(typeof id === "object") options = id;
-			options = options || {};
-
-			var newMyo = Object.create(myoInstance);
-			newMyo.options = extend(Myo.options, options);
-			newMyo.events = [];
-			newMyo.id = id;
-			Myo.myos[id] = newMyo;
-			return newMyo;
-		},
-		*/
 
 
 		onError : function(){
@@ -56,22 +38,34 @@
 		on : function(eventName, fn){
 			return on(Myo.events, eventName, fn);
 		},
+
+		/*
 		initSocket : function(){
-			Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
+			Myo.socket = new Socket(Myo.defaults.socket_url + Myo.defaults.api_version);
 			Myo.socket.onmessage = handleMessage;
 			Myo.socket.onerror = Myo.onError;
-		}
+		},
+		*/
+
+		connect : function(){
+			Myo.socket = new Socket(Myo.defaults.socket_url + Myo.defaults.api_version);
+			Myo.socket.onmessage = handleMessage;
+			Myo.socket.onerror = Myo.onError;
+		},
+		disconnect : function(){
+			Myo.socket.close();
+		},
 	};
 
 
-	var myoList = {};
+	myoList = {};
 
 
 	var createMyo = function(pairedDataMsg){
 
 		console.log('creating myo', pairedDataMsg.name);
 
-		var newMyo = Object.create(myoInstance);
+		var newMyo = Object.create(myoInstance, {test : {value : 6}});
 		//newMyo.options = extend(Myo.options, {});
 		newMyo.events = [];
 		newMyo.mac_address = pairedDataMsg.mac_address;
@@ -80,6 +74,164 @@
 		myoList[pairedDataMsg.myo] = newMyo;
 	}
 
+
+
+	/**
+		Myo Instance Object
+	**/
+
+
+
+
+	var myoInstance = {
+
+
+
+		create : function(pairedDataMsg){
+
+			console.log('creating myo', pairedDataMsg.name);
+
+			var newMyo = merge_options(Object.create(myoInstance), {
+
+				mac_address : pairedDataMsg.mac_address,
+				name : pairedDataMsg.name,
+
+				myoConnectINdex : pairedDataMsg.myo,
+
+				isLocked : false,
+				isConnected : false,
+				batteryLevel : 0,
+				orientationOffset : {x : 0,y : 0,z : 0,w : 1},
+				lastIMU : undefined,
+				arm : undefined,
+				direction : undefined,
+				events : [],
+
+
+			});
+
+			//console.log(newMyo);
+			//newMyo.options = extend(Myo.options, {});
+			//newMyo.events = [];
+			//newMyo.mac_address = pairedDataMsg.mac_address;
+			//newMyo.name = pairedDataMsg.name;
+			delete newMyo.create;
+
+			Myo.myos.push(newMyo);
+			myoList[pairedDataMsg.myo] = newMyo;
+		},
+
+		trigger : function(eventName){
+			var args = Array.prototype.slice.apply(arguments).slice(1);
+			trigger.call(this, Myo.events, eventName, args);
+			trigger.call(this, this.events, eventName, args);
+			return this;
+		},
+		on : function(eventName, fn){
+			return on(this.events, eventName, fn);
+		},
+		off : function(eventName){
+			this.events = off(this.events, eventName);
+		},
+
+/*
+		timer : function(status, timeout, fn){
+			if(status){
+				this.timeout = setTimeout(fn.bind(this), timeout);
+			}else{
+				clearTimeout(this.timeout);
+			}
+		},
+*/
+		lock : function(){
+			if(this.isLocked) return this;
+
+			Myo.socket.send(JSON.stringify(["command", {
+				"command": "lock",
+				"myo": this.id
+			}]));
+
+			this.isLocked = true;
+			this.trigger('lock');
+			return this;
+		},
+		unlock : function(timeout){
+			var self = this;
+			clearTimeout(this.lockTimeout);
+			if(timeout){
+				Myo.socket.send(JSON.stringify(["command", {
+					"command": "unlock",
+					"myo": this.id,
+					"type": "hold"
+				}]));
+
+				this.lockTimeout = setTimeout(function(){
+					self.lock();
+				}, timeout);
+			} else {
+				Myo.socket.send(JSON.stringify(["command", {
+					"command": "unlock",
+					"myo": this.id,
+					"type": "timed"
+				}]));
+			}
+			if(!this.isLocked) return this;
+			this.isLocked = false;
+			this.trigger('unlock');
+			return this;
+		},
+		zeroOrientation : function(){
+			this.orientationOffset = quatInverse(this._lastQuant);
+			this.trigger('zero_orientation');
+			return this;
+		},
+		setLockingPolicy: function (policy) {
+			policy = policy || "standard";
+			Myo.socket.send(JSON.stringify(['command',{
+				"command": "set_locking_policy",
+				"type": policy
+			}]));
+			return this;
+		},
+		vibrate : function(intensity){
+			intensity = intensity || 'medium';
+			Myo.socket.send(JSON.stringify(['command',{
+				"command": "vibrate",
+				"myo": this.id,
+				"type": intensity
+			}]));
+			return this;
+		},
+		requestBluetoothStrength : function(){
+			Myo.socket.send(JSON.stringify(['command',{
+				"command": "request_rssi",
+				"myo": this.id
+			}]));
+			return this;
+		},
+		streamEMG : function(enabled){
+			var type = 'enabled';
+			if(enabled === false) type = 'disabled';
+			Myo.socket.send(JSON.stringify(['command',{
+				"command": "set_stream_emg",
+				"myo": this.id,
+				"type" : type
+			}]));
+			return this;
+		}
+	};
+
+
+
+
+
+
+	function merge_options(obj1,obj2){
+	    var obj3 = {};
+	    for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+	    for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+	    return obj3;
+	}
 
 
 
@@ -194,9 +346,9 @@
 		var data = JSON.parse(msg.data)[1];
 
 
-		if(data.type == 'paired' && !Myo.myos[data.myo] ) createMyo(data);
+		if(data.type == 'paired' && !Myo.myos[data.myo] ) myoInstance.create(data);
 
-		if(data.type == 'pose') console.log(data);
+	//	if(data.type == 'pose') console.log(data);
 
 
 
@@ -245,114 +397,6 @@
 	};
 
 
-
-	var myoInstance = {
-		isLocked : false,
-		isConnected : false,
-		orientationOffset : {x : 0,y : 0,z : 0,w : 1},
-		lastIMU : undefined,
-		socket : undefined,
-		arm : undefined,
-		direction : undefined,
-		events : [],
-
-		trigger : function(eventName){
-			var args = Array.prototype.slice.apply(arguments).slice(1);
-			trigger.call(this, Myo.events, eventName, args);
-			trigger.call(this, this.events, eventName, args);
-			return this;
-		},
-		on : function(eventName, fn){
-			return on(this.events, eventName, fn);
-		},
-		off : function(eventName){
-			this.events = off(this.events, eventName);
-		},
-
-		timer : function(status, timeout, fn){
-			if(status){
-				this.timeout = setTimeout(fn.bind(this), timeout);
-			}else{
-				clearTimeout(this.timeout);
-			}
-		},
-		lock : function(){
-			if(this.isLocked) return this;
-
-			Myo.socket.send(JSON.stringify(["command", {
-				"command": "lock",
-				"myo": this.id
-			}]));
-
-			this.isLocked = true;
-			this.trigger('lock');
-			return this;
-		},
-		unlock : function(timeout){
-			var self = this;
-			clearTimeout(this.lockTimeout);
-			if(timeout){
-				Myo.socket.send(JSON.stringify(["command", {
-					"command": "unlock",
-					"myo": this.id,
-					"type": "hold"
-				}]));
-
-				this.lockTimeout = setTimeout(function(){
-					self.lock();
-				}, timeout);
-			} else {
-				Myo.socket.send(JSON.stringify(["command", {
-					"command": "unlock",
-					"myo": this.id,
-					"type": "timed"
-				}]));
-			}
-			if(!this.isLocked) return this;
-			this.isLocked = false;
-			this.trigger('unlock');
-			return this;
-		},
-		zeroOrientation : function(){
-			this.orientationOffset = quatInverse(this._lastQuant);
-			this.trigger('zero_orientation');
-			return this;
-		},
-		setLockingPolicy: function (policy) {
-			policy = policy || "standard";
-			Myo.socket.send(JSON.stringify(['command',{
-				"command": "set_locking_policy",
-				"type": policy
-			}]));
-			return this;
-		},
-		vibrate : function(intensity){
-			intensity = intensity || 'medium';
-			Myo.socket.send(JSON.stringify(['command',{
-				"command": "vibrate",
-				"myo": this.id,
-				"type": intensity
-			}]));
-			return this;
-		},
-		requestBluetoothStrength : function(){
-			Myo.socket.send(JSON.stringify(['command',{
-				"command": "request_rssi",
-				"myo": this.id
-			}]));
-			return this;
-		},
-		streamEMG : function(enabled){
-			var type = 'enabled';
-			if(enabled === false) type = 'disabled';
-			Myo.socket.send(JSON.stringify(['command',{
-				"command": "set_stream_emg",
-				"myo": this.id,
-				"type" : type
-			}]));
-			return this;
-		}
-	};
 
 
 

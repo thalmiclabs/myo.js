@@ -3,6 +3,10 @@
 
 ### 2.0.0 - Wednesday, 08/07/2015
 * Dramatically changed the way Myo.js creates myo instances. No more code needed! The library will create the instances for you.
+* Hiding the need for the developer to worry about the Myo index value in Myo Connect. Myo.js now uses mac addresses as the main form of Myo id
+* Renamed `Myo.initSocket()` to `Myo.connect()` and added `Myo.disconnect()`
+* Renamed `Myo.options` to `Myo.defaults`
+* Removed `myo.timer()`
 
 
 ### 1.5.0 - Thursday, 19/03/2015
