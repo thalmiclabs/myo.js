@@ -1,6 +1,10 @@
 
 Myo.connect();
 
+Myo.on('ready', function(){
+	Myo.setLockingPolicy('none');
+})
+
 
 Myo.on('connected', function(data){
 	console.log('connected', this,  data);
@@ -12,7 +16,8 @@ Myo.on('connected', function(data){
 
 
 
-})
+});
+
 
 Myo.on('status', function(data){
 	console.log(data.type, data);
@@ -30,7 +35,6 @@ addEvents = function(myo){
 }
 
 
-console.log(Myo.myos[0]);
 
 
 

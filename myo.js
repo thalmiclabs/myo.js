@@ -61,6 +61,8 @@
 		connect : function(){
 			Myo.socket = new Socket(Myo.defaults.socket_url + Myo.defaults.api_version);
 			Myo.socket.onmessage = handleMessage;
+			Myo.socket.onopen = Myo.trigger.bind('ready');
+			Myo.socket.onclose = Myo.trigger.bind('socket_closed');
 			Myo.socket.onerror = Myo.onError;
 		},
 		disconnect : function(){
@@ -103,9 +105,9 @@
 
 			console.log('creating myo', pairedDataMsg.name);
 
-			var newMyo = merge_options(Object.create(myoInstance), {
+			var newMyo = utils.merge(Object.create(myoInstance), {
 
-				mac_address : pairedDataMsg.mac_address,
+				macAddress : pairedDataMsg.mac_address,
 				name : pairedDataMsg.name,
 
 				myoConnectIndex : pairedDataMsg.myo,
@@ -146,16 +148,6 @@
 		off : function(eventName){
 			this.events = off(this.events, eventName);
 		},
-
-/*
-		timer : function(status, timeout, fn){
-			if(status){
-				this.timeout = setTimeout(fn.bind(this), timeout);
-			}else{
-				clearTimeout(this.timeout);
-			}
-		},
-*/
 		lock : function(){
 			Myo.socket.send(JSON.stringify(["command", {
 				"command": "lock",
@@ -163,35 +155,6 @@
 			}]));
 			return this;
 		},
-		/*
-		unlock : function(timeout){
-			var self = this;
-			clearTimeout(this.lockTimeout);
-			if(timeout){
-				Myo.socket.send(JSON.stringify(["command", {
-					"command": "unlock",
-					"myo": this.myoConnectIndex,
-					"type": "hold"
-				}]));
-
-				this.lockTimeout = setTimeout(function(){
-					self.lock();
-				}, timeout);
-			} else {
-				Myo.socket.send(JSON.stringify(["command", {
-					"command": "unlock",
-					"myo": this.myoConnectIndex,
-					"type": "timed"
-				}]));
-			}
-			if(!this.locked) return this;
-			this.locked = false;
-			this.trigger('unlock');
-			return this;
-		},
-		*/
-
-
 		unlock : function(hold){
 			Myo.socket.send(JSON.stringify(["command", {
 				"command": "unlock",
@@ -201,7 +164,7 @@
 			return this;
 		},
 		zeroOrientation : function(){
-			this.orientationOffset = quatInverse(this.lastQuant);
+			this.orientationOffset = utils.quatInverse(this.lastQuant);
 			this.trigger('zero_orientation');
 			return this;
 		},
@@ -235,54 +198,39 @@
 
 
 
-
-	function merge_options(obj1,obj2){
-	    var obj3 = {};
-	    for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-	    for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
-	    return obj3;
-	}
-
-
-
-
-
-	/**
-	 * Utils
-	 */
-	var extend = function(){
-		var result = {};
-		for(var i in arguments){
-			var obj = arguments[i];
-			for(var propName in obj){
-				if(obj.hasOwnProperty(propName)){ result[propName] = obj[propName]; }
-			}
-		}
-		return result;
-	};
 	var unique_counter = 0;
-	var getUniqueId = function(){
-		unique_counter++;
-		return new Date().getTime() + "" + unique_counter;
+	var utils = {
+		merge : function(obj1,obj2){
+			var obj3 = {};
+			for(var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+			for(var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+			return obj3;
+		},
+
+		getUniqueId : function(){
+			unique_counter++;
+			return new Date().getTime() + "" + unique_counter;
+		},
+
+		quatInverse : function(q) {
+			var len = Math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+			return {
+				w: q.w/len,
+				x: -q.x/len,
+				y: -q.y/len,
+				z: -q.z/len
+			};
+		},
+		quatRotate : function(q, r) {
+			return {
+				w: q.w * r.w - q.x * r.x - q.y * r.y - q.z * r.z,
+				x: q.w * r.x + q.x * r.w + q.y * r.z - q.z * r.y,
+				y: q.w * r.y - q.x * r.z + q.y * r.w + q.z * r.x,
+				z: q.w * r.z + q.x * r.y - q.y * r.x + q.z * r.w
+			};
+		}
 	};
 
-	var quatInverse = function(q) {
-		var len = Math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
-		return {
-			w: q.w/len,
-			x: -q.x/len,
-			y: -q.y/len,
-			z: -q.z/len
-		};
-	};
-	var quatRotate = function(q, r) {
-		return {
-			w: q.w * r.w - q.x * r.x - q.y * r.y - q.z * r.z,
-			x: q.w * r.x + q.x * r.w + q.y * r.z - q.z * r.y,
-			y: q.w * r.y - q.x * r.z + q.y * r.w + q.z * r.x,
-			z: q.w * r.z + q.x * r.y - q.y * r.x + q.z * r.w
-		};
-	};
 
 
 	var eventTable = {
@@ -302,12 +250,9 @@
 				if(Myo.lockingPolicy === 'standard') myo.unlock(true);
 			}
 		},
-		'rssi' : function(myo, data){
-			myo.trigger('bluetooth_strength', data.rssi, data.timestamp);
-		},
 		'orientation' : function(myo, data){
 			myo.lastQuant = data.orientation;
-			ori = quatRotate(myo.orientationOffset, data.orientation);
+			ori = utils.quatRotate(myo.orientationOffset, data.orientation);
 			var imu_data = {
 				orientation : ori,
 				accelerometer : {
@@ -331,17 +276,23 @@
 		'emg' : function(myo, data){
 			myo.trigger(data.type, data.emg, data.timestamp);
 		},
+
+
+		//Status Events
+
 		'arm_synced' : function(myo, data){
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
-			myo.trigger(data.type, data, data.timestamp);
-			myo.trigger('status', data, data.timestamp);
+			//myo.trigger(data.type, data, data.timestamp);
+			//myo.trigger('status', data, data.timestamp);
+			return true;
 		},
 		'arm_unsynced' : function(myo, data){
 			myo.arm = undefined;
 			myo.direction = undefined;
-			myo.trigger(data.type, data, data.timestamp);
-			myo.trigger('status', data, data.timestamp);
+			//myo.trigger(data.type, data, data.timestamp);
+			//myo.trigger('status', data, data.timestamp);
+			return true;
 		},
 		'connected' : function(myo, data){
 			myo.connect_version = data.version.join('.');
@@ -349,23 +300,36 @@
 			for(var attr in data){
 				myo[attr] = data[attr];
 			}
-			myo.trigger(data.type, data, data.timestamp);
-			myo.trigger('status', data, data.timestamp);
+			//myo.trigger(data.type, data, data.timestamp);
+			//myo.trigger('status', data, data.timestamp);
+			return true;
 		},
 		'disconnected' : function(myo, data){
 			myo.connected = false;
-			myo.trigger(data.type, data, data.timestamp);
-			myo.trigger('status', data, data.timestamp);
+			//myo.trigger(data.type, data, data.timestamp);
+			//myo.trigger('status', data, data.timestamp);
+			return true;
 		},
-
 		'locked' : function(myo, data){
 			myo.locked = true;
-			myo.trigger(data.type, data, data.timestamp);
-			myo.trigger('status', data, data.timestamp);
+			//myo.trigger(data.type, data, data.timestamp);
+			//myo.trigger('status', data, data.timestamp);
+			return true;
 		},
 		'unlocked' : function(myo, data){
 			myo.locked = false;
-			myo.trigger(data.type, data, data.timestamp);
+			//myo.trigger(data.type, data, data.timestamp);
+			//myo.trigger('status', data, data.timestamp);
+			return true;
+		},
+
+		'rssi' : function(myo, data){
+			myo.trigger('bluetooth_strength', data.rssi, data.timestamp);
+			myo.trigger('status', data, data.timestamp);
+		},
+		'battery_level' : function(myo, data){
+			myo.batteryLevel = data.battery_level;
+			myo.trigger('battery_level', data.battery_level, data.timestamp);
 			myo.trigger('status', data, data.timestamp);
 		},
 
@@ -373,19 +337,19 @@
 
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
-		if(!data.type) return;
-
+		if(!data.type || !data.myo) return;
 
 		if(data.type == 'paired' && !Myo.myos[data.myo] ) myoInstance.create(data);
 
-	//	if(data.type == 'pose') console.log(data);
-
-
+		var myo = myoList[data.myo];
+		var statusEvent = true;
 
 		if(eventTable[data.type]){
-			eventTable[data.type](myoList[data.myo], data);
-		}else{
-			myoList[data.myo].trigger('status', data, data.timestamp);
+			statusEvent = eventTable[data.type](myo, data);
+		}
+		if(!eventTable[data.type] || statusEvent){
+			myo.trigger(data.type, data, data.timestamp);
+			myo.trigger('status', data, data.timestamp);
 		}
 	};
 
@@ -407,7 +371,7 @@
 		return this;
 	};
 	var on = function(events, name, fn){
-		var id = getUniqueId();
+		var id = utils.getUniqueId();
 		events.push({
 			id   : id,
 			name : name,

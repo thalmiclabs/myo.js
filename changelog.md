@@ -12,6 +12,7 @@
 * Pose events now implicitly call `.unlock(true)` and `.unlock()` on release.
 * Removed `rest` from being a pose
 * Removed edges from pose events. Added `_off` events to replace it. eg. `fist` and `fist_off`
+* Adding events for when the socket is ready and when the socket has closed.
 
 
 ### 1.5.0 - Thursday, 19/03/2015
