@@ -1,6 +1,6 @@
 (function(){
 
-	var Socket;
+	var Socket, myoList = {};
 	if(typeof window === 'undefined'){
 		Socket = require('ws');
 	}else {
@@ -8,26 +8,18 @@
 		Socket = WebSocket;
 	}
 
-
-	/**
-		Myo Root Object
-	**/
-	var myoList = {};
 	Myo = {
 		defaults : {
 			api_version : 3,
 			socket_url  : "ws://127.0.0.1:10138/myo/",
 		},
 		lockingPolicy : 'standard',
-
 		events : [],
 		myos : [],
-
 
 		onError : function(){
 			throw 'Myo.js had an error with the socket. Myo Connect might not be running. If it is, double check the API version.';
 		},
-
 
 		setLockingPolicy: function(policy) {
 			Myo.socket.send(JSON.stringify(['command',{
@@ -37,10 +29,6 @@
 			Myo.lockingPolicy = policy;
 			return Myo;
 		},
-
-		/**
-		 * Event functions
-		 */
 		trigger : function(eventName){
 			var args = Array.prototype.slice.apply(arguments).slice(1);
 			emitter.trigger.call(Myo, Myo.events, eventName, args);
@@ -49,17 +37,10 @@
 		on : function(eventName, fn){
 			return emitter.on(Myo.events, eventName, fn);
 		},
-		off : function(){
-			//TODO
+		off : function(eventName){
+			Myo.events = emitter.off(Myo.events, eventName);
+			return Myo;
 		},
-
-		/*
-		initSocket : function(){
-			Myo.socket = new Socket(Myo.defaults.socket_url + Myo.defaults.api_version);
-			Myo.socket.onmessage = handleMessage;
-			Myo.socket.onerror = Myo.onError;
-		},
-		*/
 
 		connect : function(){
 			Myo.socket = new Socket(Myo.defaults.socket_url + Myo.defaults.api_version);
@@ -87,9 +68,6 @@
 		}
 	};
 
-
-
-
 	var myoInstance = {
 		create : function(pairedDataMsg){
 			var newMyo = utils.merge(Object.create(myoInstance), {
@@ -110,7 +88,6 @@
 			Myo.myos.push(newMyo);
 			myoList[pairedDataMsg.myo] = newMyo;
 		},
-
 		trigger : function(eventName){
 			var args = Array.prototype.slice.apply(arguments).slice(1);
 			emitter.trigger.call(this, Myo.events, eventName, args);
@@ -122,6 +99,7 @@
 		},
 		off : function(eventName){
 			this.events = emitter.off(this.events, eventName);
+			return this;
 		},
 		lock : function(){
 			Myo.socket.send(JSON.stringify(["command", {
@@ -169,14 +147,8 @@
 		}
 	};
 
-
-
-
-
-
-
-
 	var eventTable = {
+		//Stream Events
 		'pose' : function(myo, data){
 			if(myo.lastPose){
 				myo.trigger(myo.lastPose + '_off');
@@ -222,7 +194,6 @@
 
 
 		//Status Events
-
 		'arm_synced' : function(myo, data){
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
@@ -268,10 +239,6 @@
 
 
 
-	/**
-	 * Eventy-ness
-	 */
-
 	var emitter = {
 		eventCounter : 0,
 		trigger : function(events, eventName, args){
@@ -307,7 +274,6 @@
 		},
 	};
 
-	var unique_counter = 0;
 	var utils = {
 		merge : function(obj1,obj2){
 			var obj3 = {};
@@ -333,15 +299,6 @@
 			};
 		}
 	};
-
-
-
-
-
-
-
-
-
 
 	if(typeof module !== 'undefined') module.exports = Myo;
 })();

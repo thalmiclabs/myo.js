@@ -2,18 +2,20 @@
 
 
 ### 2.0.0 - Wednesday, 08/07/2015
-* Dramatically changed the way Myo.js creates myo instances. No more code needed! The library will create the instances for you.
+* Dramatically changed the way Myo.js creates myo instances. No more code needed! The library will create the instances for you as they are paired.
 * Hiding the need for the developer to worry about the Myo index value in Myo Connect. Myo.js now uses mac addresses as the main form of Myo id
-* Renamed `Myo.initSocket()` to `Myo.connect()` and added `Myo.disconnect()`
+* Renamed `Myo.initSocket()` to `Myo.connect()` and added `Myo.disconnect()` to close the web socket
 * Renamed `Myo.options` to `Myo.defaults`
 * Removed `myo.timer()`
-* Fixed `myo.setLockingPolicy()` and moved it onto the core obecjt, `Myo` since it controls the locking policy for all Myos.
-* Simplied the `myo.unlock()` command.
-* Pose events now implicitly call `.unlock(true)` and `.unlock()` on release.
+* Fixed `myo.setLockingPolicy()` and moved it onto the core object, `Myo` since it controls the locking policy for all Myos.
+* Simplified the `myo.unlock()` command.
+* Pose events now implicitly call `.unlock(true)` and `.unlock()` on release, if locking policy is `standard`
 * Removed `rest` from being a pose
-* Removed edges from pose events. Added `_off` events to replace it. eg. `fist` and `fist_off`
-* Adding events for when the socket is ready and when the socket has closed.
-* Now tracking battery level on the Myo instance.
+* Removed edges from pose events. Added `_off` events to replace it. eg. `fist` and `fist_off`, `pose` and `pose_off`
+* Adding events for when the socket is ready and when the socket has closed. `ready` and `socket_closed` respectively
+* Now tracking battery level on the Myo instance. `myo.batteryLevel`
+* Added `.off()` to the core Myo object to turn off global events.
+* `myo.off()` now returns the Myo instance for chaining.
 
 
 ### 1.5.0 - Thursday, 19/03/2015

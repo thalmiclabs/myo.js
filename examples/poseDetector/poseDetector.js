@@ -1,48 +1,23 @@
-
-
-
 Myo.connect();
 
-Myo.on('ready', function(){
-	console.log('setting policy');
-	Myo.setLockingPolicy('none');
+Myo.on('status', function(data){
+	$('.events').prepend(JSON.stringify(data, null, 2));
 })
 
+Myo.on('pose', function(pose){
+	$('img.' + pose).attr('src', 'img/' + pose + '_active.png');
+	$('.mainPose img').attr('src', 'img/' + pose + '_active.png');
+})
 
-
-
-Myo.on('connected', function(data){
-	console.log('connected', this,  data);
-
-	myo = this;
-
-	addEvents(this);
-
-
-
-
+Myo.on('pose_off', function(pose){
+	$('img.' + pose).attr('src', 'img/' + pose + '.png');
+	$('.mainPose img').attr('src', 'img/unlocked.png');
 });
 
-
-Myo.on('status', function(data){
-	console.log(data.type, data);
+Myo.on('locked', function(){
+	$('.mainPose img').attr('src', 'img/locked.png');
 })
 
-
-addEvents = function(myo){
-	myo.on('pose', function(pose){
-		console.log(pose);
-	})
-
-	myo.on('pose_off', function(pose){
-		console.log(pose, 'off');
-	})
-}
-
-
-
-
-
-
-
-
+Myo.on('unlocked', function(){
+	$('.mainPose img').attr('src', 'img/unlocked.png');
+})

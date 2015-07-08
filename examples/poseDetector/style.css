@@ -1,0 +1,46 @@
+html, body{
+	width       : 100%;
+	margin : 0;
+	padding : 0;
+}
+
+body{
+	background  : #10161d url('img/dot_grid.png');
+	font-family : 'blender_prothin';
+	font-size   : 12px;
+	color       : #58bccc;
+	line-height : 20px;
+}
+
+
+body{
+	text-align: center;
+}
+
+
+.pose{
+	width : 100px;
+	margin: 0px 20px;
+}
+
+
+.mainPose{
+	margin-top: 100px;
+	height : 220px;
+}
+
+
+
+
+
+.events{
+	text-align: left;
+	width : 300px;
+	border: 1px solid rgba(88,188,204,0.4);
+	overflow-y: scroll;
+	margin-top: 12px;
+	height: 356px;
+	font-family: "Courier New",Courier,monospace;
+}
+
+
