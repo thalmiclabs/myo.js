@@ -7,6 +7,11 @@
 * Renamed `Myo.initSocket()` to `Myo.connect()` and added `Myo.disconnect()`
 * Renamed `Myo.options` to `Myo.defaults`
 * Removed `myo.timer()`
+* Fixed `myo.setLockingPolicy()` and moved it onto the core obecjt, `Myo` since it controls the locking policy for all Myos.
+* Simplied the `myo.unlock()` command.
+* Pose events now implicitly call `.unlock(true)` and `.unlock()` on release.
+* Removed `rest` from being a pose
+* Removed edges from pose events. Added `_off` events to replace it. eg. `fist` and `fist_off`
 
 
 ### 1.5.0 - Thursday, 19/03/2015

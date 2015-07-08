@@ -1,6 +1,6 @@
 change list
 - Actually fix the lock policies. (how du?!)
-- Is there anything for hard lock?
+//- Is there anything for hard lock?
 - What should we add for warm-up (Add warm-up events)
 - Move over to using mac address as the primary id, rather than Myo Connect Index
 - Remove the edge from the pose events. Create new events for off and on
@@ -11,6 +11,9 @@ change list
 - track battery level on the myo object
 - Add warm-up state
 - Add target myo object as first param on all Myo.on events
+- Add a myo lifecycle section to the docs
+- Add a onHold function?
+- add Off to core Myo Obj
 
 Example Ideas
 - Pose listener with locking policy (Diagnostics page style)

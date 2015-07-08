@@ -27,6 +27,15 @@
 			throw 'Myo.js had an error with the socket. Myo Connect might not be running. If it is, double check the API version.';
 		},
 
+
+		setLockingPolicy: function (policy) {
+			Myo.socket.send(JSON.stringify(['command',{
+				"command": "set_locking_policy",
+				"type": policy
+			}]));
+			return Myo;
+		},
+
 		/**
 		 * Event functions
 		 */
@@ -60,6 +69,7 @@
 
 	myoList = {};
 
+/*
 
 	var createMyo = function(pairedDataMsg){
 
@@ -73,7 +83,7 @@
 		Myo.myos.push(newMyo);
 		myoList[pairedDataMsg.myo] = newMyo;
 	}
-
+*/
 
 
 	/**
@@ -96,10 +106,11 @@
 				mac_address : pairedDataMsg.mac_address,
 				name : pairedDataMsg.name,
 
-				myoConnectINdex : pairedDataMsg.myo,
+				myoConnectIndex : pairedDataMsg.myo,
 
 				isLocked : false,
 				isConnected : false,
+
 				batteryLevel : 0,
 				orientationOffset : {x : 0,y : 0,z : 0,w : 1},
 				lastIMU : undefined,
@@ -144,24 +155,20 @@
 		},
 */
 		lock : function(){
-			if(this.isLocked) return this;
-
 			Myo.socket.send(JSON.stringify(["command", {
 				"command": "lock",
-				"myo": this.id
+				"myo": this.myoConnectIndex
 			}]));
-
-			this.isLocked = true;
-			this.trigger('lock');
 			return this;
 		},
+		/*
 		unlock : function(timeout){
 			var self = this;
 			clearTimeout(this.lockTimeout);
 			if(timeout){
 				Myo.socket.send(JSON.stringify(["command", {
 					"command": "unlock",
-					"myo": this.id,
+					"myo": this.myoConnectIndex,
 					"type": "hold"
 				}]));
 
@@ -171,7 +178,7 @@
 			} else {
 				Myo.socket.send(JSON.stringify(["command", {
 					"command": "unlock",
-					"myo": this.id,
+					"myo": this.myoConnectIndex,
 					"type": "timed"
 				}]));
 			}
@@ -180,24 +187,29 @@
 			this.trigger('unlock');
 			return this;
 		},
+		*/
+
+
+		unlock : function(hold){
+			Myo.socket.send(JSON.stringify(["command", {
+				"command": "unlock",
+				"myo": this.myoConnectIndex,
+				"type": (hold ? "hold" : "timed")
+			}]));
+			return this;
+		},
+
 		zeroOrientation : function(){
 			this.orientationOffset = quatInverse(this._lastQuant);
 			this.trigger('zero_orientation');
 			return this;
 		},
-		setLockingPolicy: function (policy) {
-			policy = policy || "standard";
-			Myo.socket.send(JSON.stringify(['command',{
-				"command": "set_locking_policy",
-				"type": policy
-			}]));
-			return this;
-		},
+
 		vibrate : function(intensity){
 			intensity = intensity || 'medium';
 			Myo.socket.send(JSON.stringify(['command',{
 				"command": "vibrate",
-				"myo": this.id,
+				"myo": this.myoConnectIndex,
 				"type": intensity
 			}]));
 			return this;
@@ -214,7 +226,7 @@
 			if(enabled === false) type = 'disabled';
 			Myo.socket.send(JSON.stringify(['command',{
 				"command": "set_stream_emg",
-				"myo": this.id,
+				"myo": this.myoConnectIndex,
 				"type" : type
 			}]));
 			return this;
@@ -277,13 +289,24 @@
 
 	var eventTable = {
 		'pose' : function(myo, data){
-			myo.trigger(myo.lastPose, false, data.timestamp);
-			myo.trigger('pose', myo.lastPose, false, data.timestamp);
-			myo.trigger(data.pose, true, data.timestamp);
-			myo.trigger('pose', data.pose, true, data.timestamp);
-			myo.lastPose = data.pose;
+			if(myo.lastPose){
+				myo.trigger(myo.lastPose + '_off');
+				myo.trigger('pose_off', myo.lastPose);
+			}
+
+			if(data.pose == 'rest'){
+				myo.trigger('rest');
+				myo.lastPose = null;
+				myo.unlock();
+			}else{
+				myo.trigger(data.pose);
+				myo.trigger('pose', data.pose);
+				myo.lastPose = data.pose;
+				myo.unlock(true);
+			}
 		},
 		'rssi' : function(myo, data){
+			console.log(data);
 			myo.trigger('bluetooth_strength', data.rssi, data.timestamp);
 		},
 		'orientation' : function(myo, data){
@@ -313,7 +336,6 @@
 			myo.trigger(data.type, data.emg, data.timestamp);
 		},
 		'arm_synced' : function(myo, data){
-			console.log('synced', data);
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
 			myo.trigger(data.type, data, data.timestamp);
@@ -338,12 +360,13 @@
 			myo.isConnected = false;
 			myo.trigger(data.type, data, data.timestamp);
 			myo.trigger('status', data, data.timestamp);
-		}
+		},
 
 	};
 
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
+		if(!data.type) return;
 
 
 		if(data.type == 'paired' && !Myo.myos[data.myo] ) myoInstance.create(data);
