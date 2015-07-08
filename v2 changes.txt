@@ -1,0 +1,35 @@
+change list
+- Actually fix the lock policies. (how du?!)
+- Is there anything for hard lock?
+- What should we add for warm-up (Add warm-up events)
+- Move over to using mac address as the primary id, rather than Myo Connect Index
+- Remove the edge from the pose events. Create new events for off and on
+- Move a lot of the experimental features into add-ons
+- Make 'good' ons their own npm modules (like snap detection, mouse control, etc.)
+- Create a -ton- of new examples. I'll need Paul and you to help me with ideas.
+- Push the examples into a gh-pages branch to use the github.io pages feature
+
+Example Ideas
+- Pose listener with locking policy (Diagnostics page style)
+- EMG and IMU graphs and event stream (Uses with flot)
+- RPS game (Mutli myo support)
+- Website enabled demo (Have a little myo enabled popup, with some controls like scrolling, or pressing buttons)
+
+Add-on Specific examples
+- Arcade shooter with Muscle Crossiant (Mouse Control add-on)
+- Hue Light demo (Snap add-on and Hue lights API)
+
+
+
+## Locking Policys ##
+
+Standard
+- Always locked from sending poses
+- Until double tap
+- Unlocked for ~2 seconds
+- Unlock/lock events
+- No double tap events for these unlock/lock things
+- set locking policy, standard and none
+
+
+None
