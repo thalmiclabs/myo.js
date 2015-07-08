@@ -1,9 +1,14 @@
 
+
+
 Myo.connect();
 
 Myo.on('ready', function(){
+	console.log('setting policy');
 	Myo.setLockingPolicy('none');
 })
+
+
 
 
 Myo.on('connected', function(data){

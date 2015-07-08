@@ -12,7 +12,7 @@
 	/**
 		Myo Root Object
 	**/
-
+	var myoList = {};
 	Myo = {
 		defaults : {
 			api_version : 3,
@@ -43,11 +43,14 @@
 		 */
 		trigger : function(eventName){
 			var args = Array.prototype.slice.apply(arguments).slice(1);
-			trigger.call(Myo, Myo.events, eventName, args);
+			emitter.trigger.call(Myo, Myo.events, eventName, args);
 			return Myo;
 		},
 		on : function(eventName, fn){
-			return on(Myo.events, eventName, fn);
+			return emitter.on(Myo.events, eventName, fn);
+		},
+		off : function(){
+			//TODO
 		},
 
 		/*
@@ -61,92 +64,64 @@
 		connect : function(){
 			Myo.socket = new Socket(Myo.defaults.socket_url + Myo.defaults.api_version);
 			Myo.socket.onmessage = handleMessage;
-			Myo.socket.onopen = Myo.trigger.bind('ready');
-			Myo.socket.onclose = Myo.trigger.bind('socket_closed');
+			Myo.socket.onopen = Myo.trigger.bind(Myo, 'ready');
+			Myo.socket.onclose = Myo.trigger.bind(Myo, 'socket_closed');
 			Myo.socket.onerror = Myo.onError;
 		},
 		disconnect : function(){
 			Myo.socket.close();
 		},
 	};
-
-
-	myoList = {};
-
-/*
-
-	var createMyo = function(pairedDataMsg){
-
-		console.log('creating myo', pairedDataMsg.name);
-
-		var newMyo = Object.create(myoInstance, {test : {value : 6}});
-		//newMyo.options = extend(Myo.options, {});
-		newMyo.events = [];
-		newMyo.mac_address = pairedDataMsg.mac_address;
-		newMyo.name = pairedDataMsg.name;
-		Myo.myos.push(newMyo);
-		myoList[pairedDataMsg.myo] = newMyo;
-	}
-*/
-
-
-	/**
-		Myo Instance Object
-	**/
+	var handleMessage = function(msg){
+		var data = JSON.parse(msg.data)[1];
+		if(!data.type || !data.myo) return;
+		if(data.type == 'paired' && !Myo.myos[data.myo]) myoInstance.create(data);
+		var myo = myoList[data.myo];
+		var isStatusEvent = true;
+		if(eventTable[data.type]){
+			isStatusEvent = eventTable[data.type](myo, data);
+		}
+		if(!eventTable[data.type] || isStatusEvent){
+			myo.trigger(data.type, data, data.timestamp);
+			myo.trigger('status', data, data.timestamp);
+		}
+	};
 
 
 
 
 	var myoInstance = {
-
-
-
 		create : function(pairedDataMsg){
-
-			console.log('creating myo', pairedDataMsg.name);
-
 			var newMyo = utils.merge(Object.create(myoInstance), {
-
-				macAddress : pairedDataMsg.mac_address,
-				name : pairedDataMsg.name,
-
+				macAddress      : pairedDataMsg.mac_address,
+				name            : pairedDataMsg.name,
 				myoConnectIndex : pairedDataMsg.myo,
-
-				locked : true,
-				connected : false,
-
-				batteryLevel : 0,
+				locked          : true,
+				connected       : false,
+				batteryLevel    : 0,
+				lastIMU         : undefined,
+				arm             : undefined,
+				direction       : undefined,
+				warmupState     : undefined,
 				orientationOffset : {x : 0,y : 0,z : 0,w : 1},
-				lastIMU : undefined,
-				arm : undefined,
-				direction : undefined,
 				events : [],
-
-
 			});
-
-			//console.log(newMyo);
-			//newMyo.options = extend(Myo.options, {});
-			//newMyo.events = [];
-			//newMyo.mac_address = pairedDataMsg.mac_address;
-			//newMyo.name = pairedDataMsg.name;
 			delete newMyo.create;
-
 			Myo.myos.push(newMyo);
 			myoList[pairedDataMsg.myo] = newMyo;
 		},
 
 		trigger : function(eventName){
 			var args = Array.prototype.slice.apply(arguments).slice(1);
-			trigger.call(this, Myo.events, eventName, args);
-			trigger.call(this, this.events, eventName, args);
+			emitter.trigger.call(this, Myo.events, eventName, args);
+			emitter.trigger.call(this, this.events, eventName, args);
 			return this;
 		},
 		on : function(eventName, fn){
-			return on(this.events, eventName, fn);
+			return emitter.on(this.events, eventName, fn);
 		},
 		off : function(eventName){
-			this.events = off(this.events, eventName);
+			this.events = emitter.off(this.events, eventName);
 		},
 		lock : function(){
 			Myo.socket.send(JSON.stringify(["command", {
@@ -180,7 +155,7 @@
 		requestBluetoothStrength : function(){
 			Myo.socket.send(JSON.stringify(['command',{
 				"command": "request_rssi",
-				"myo": this.id
+				"myo": this.myoConnectIndex
 			}]));
 			return this;
 		},
@@ -283,15 +258,11 @@
 		'arm_synced' : function(myo, data){
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
-			//myo.trigger(data.type, data, data.timestamp);
-			//myo.trigger('status', data, data.timestamp);
 			return true;
 		},
 		'arm_unsynced' : function(myo, data){
 			myo.arm = undefined;
 			myo.direction = undefined;
-			//myo.trigger(data.type, data, data.timestamp);
-			//myo.trigger('status', data, data.timestamp);
 			return true;
 		},
 		'connected' : function(myo, data){
@@ -300,26 +271,18 @@
 			for(var attr in data){
 				myo[attr] = data[attr];
 			}
-			//myo.trigger(data.type, data, data.timestamp);
-			//myo.trigger('status', data, data.timestamp);
 			return true;
 		},
 		'disconnected' : function(myo, data){
 			myo.connected = false;
-			//myo.trigger(data.type, data, data.timestamp);
-			//myo.trigger('status', data, data.timestamp);
 			return true;
 		},
 		'locked' : function(myo, data){
 			myo.locked = true;
-			//myo.trigger(data.type, data, data.timestamp);
-			//myo.trigger('status', data, data.timestamp);
 			return true;
 		},
 		'unlocked' : function(myo, data){
 			myo.locked = false;
-			//myo.trigger(data.type, data, data.timestamp);
-			//myo.trigger('status', data, data.timestamp);
 			return true;
 		},
 
@@ -335,60 +298,47 @@
 
 	};
 
-	var handleMessage = function(msg){
-		var data = JSON.parse(msg.data)[1];
-		if(!data.type || !data.myo) return;
-
-		if(data.type == 'paired' && !Myo.myos[data.myo] ) myoInstance.create(data);
-
-		var myo = myoList[data.myo];
-		var statusEvent = true;
-
-		if(eventTable[data.type]){
-			statusEvent = eventTable[data.type](myo, data);
-		}
-		if(!eventTable[data.type] || statusEvent){
-			myo.trigger(data.type, data, data.timestamp);
-			myo.trigger('status', data, data.timestamp);
-		}
-	};
 
 
 	/**
 	 * Eventy-ness
 	 */
-	var trigger = function(events, eventName, args){
-		var self = this;
-		//
-		events.map(function(event){
-			if(event.name == eventName) event.fn.apply(self, args);
-			if(event.name == '*'){
-				var args_temp = args.slice(0);
-				args_temp.unshift(eventName);
-				event.fn.apply(self, args_temp);
-			}
-		});
-		return this;
-	};
-	var on = function(events, name, fn){
-		var id = utils.getUniqueId();
-		events.push({
-			id   : id,
-			name : name,
-			fn   : fn
-		});
-		return id;
-	};
-	var off = function(events, name){
-		events = events.reduce(function(result, event){
-			if(event.name == name || event.id == name) {
+
+	var emitter = {
+		trigger : function(events, eventName, args){
+			var self = this;
+			//
+			events.map(function(event){
+				if(event.name == eventName) event.fn.apply(self, args);
+				if(event.name == '*'){
+					var args_temp = args.slice(0);
+					args_temp.unshift(eventName);
+					event.fn.apply(self, args_temp);
+				}
+			});
+			return this;
+		},
+		on : function(events, name, fn){
+			var id = utils.getUniqueId();
+			events.push({
+				id   : id,
+				name : name,
+				fn   : fn
+			});
+			return id;
+		},
+		off : function(events, name){
+			events = events.reduce(function(result, event){
+				if(event.name == name || event.id == name) {
+					return result;
+				}
+				result.push(event);
 				return result;
-			}
-			result.push(event);
-			return result;
-		}, []);
-		return events;
+			}, []);
+			return events;
+		},
 	};
+
 
 
 
