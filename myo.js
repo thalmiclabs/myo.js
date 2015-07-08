@@ -108,8 +108,8 @@
 
 				myoConnectIndex : pairedDataMsg.myo,
 
-				isLocked : false,
-				isConnected : false,
+				locked : true,
+				connected : false,
 
 				batteryLevel : 0,
 				orientationOffset : {x : 0,y : 0,z : 0,w : 1},
@@ -182,8 +182,8 @@
 					"type": "timed"
 				}]));
 			}
-			if(!this.isLocked) return this;
-			this.isLocked = false;
+			if(!this.locked) return this;
+			this.locked = false;
 			this.trigger('unlock');
 			return this;
 		},
@@ -293,7 +293,6 @@
 				myo.trigger(myo.lastPose + '_off');
 				myo.trigger('pose_off', myo.lastPose);
 			}
-
 			if(data.pose == 'rest'){
 				myo.trigger('rest');
 				myo.lastPose = null;
@@ -306,7 +305,6 @@
 			}
 		},
 		'rssi' : function(myo, data){
-			console.log(data);
 			myo.trigger('bluetooth_strength', data.rssi, data.timestamp);
 		},
 		'orientation' : function(myo, data){
@@ -349,7 +347,7 @@
 		},
 		'connected' : function(myo, data){
 			myo.connect_version = data.version.join('.');
-			myo.isConnected = true;
+			myo.connected = true;
 			for(var attr in data){
 				myo[attr] = data[attr];
 			}
@@ -357,7 +355,18 @@
 			myo.trigger('status', data, data.timestamp);
 		},
 		'disconnected' : function(myo, data){
-			myo.isConnected = false;
+			myo.connected = false;
+			myo.trigger(data.type, data, data.timestamp);
+			myo.trigger('status', data, data.timestamp);
+		},
+
+		'locked' : function(myo, data){
+			myo.locked = true;
+			myo.trigger(data.type, data, data.timestamp);
+			myo.trigger('status', data, data.timestamp);
+		},
+		'unlocked' : function(myo, data){
+			myo.locked = false;
 			myo.trigger(data.type, data, data.timestamp);
 			myo.trigger('status', data, data.timestamp);
 		},
