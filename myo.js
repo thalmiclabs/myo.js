@@ -4,11 +4,87 @@
 	if(typeof window === 'undefined'){
 		Socket = require('ws');
 	}else {
-		if (!("WebSocket" in window)){
-			console.error('Myo.js : Sockets not supported :(');
-		}
+		if(!("WebSocket" in window)) console.error('Myo.js : Sockets not supported :(');
 		Socket = WebSocket;
 	}
+
+
+	Myo = {
+		options : {
+			api_version : 3,
+			socket_url  : "ws://127.0.0.1:10138/myo/"
+		},
+		events : [],
+		myos : [],
+
+		/**
+		 * Myo Constructor
+		 * @param  {number} id
+		 * @param  {object} options
+		 * @return {myo}
+		 *
+		create : function(id, options){
+			if(!id) id = 0;
+			if(Myo.myos[id]) return Myo.myos[id];
+
+			if(!Myo.socket) Myo.initSocket();
+			if(typeof id === "object") options = id;
+			options = options || {};
+
+			var newMyo = Object.create(myoInstance);
+			newMyo.options = extend(Myo.options, options);
+			newMyo.events = [];
+			newMyo.id = id;
+			Myo.myos[id] = newMyo;
+			return newMyo;
+		},
+		*/
+
+
+		onError : function(){
+			throw 'Myo.js had an error with the socket. Myo Connect might not be running. If it is, double check the API version.';
+		},
+
+		/**
+		 * Event functions
+		 */
+		trigger : function(eventName){
+			var args = Array.prototype.slice.apply(arguments).slice(1);
+			trigger.call(Myo, Myo.events, eventName, args);
+			return Myo;
+		},
+		on : function(eventName, fn){
+			return on(Myo.events, eventName, fn);
+		},
+		initSocket : function(){
+			Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
+			Myo.socket.onmessage = handleMessage;
+			Myo.socket.onerror = Myo.onError;
+		}
+	};
+
+
+	var myoList = {};
+
+
+	var createMyo = function(pairedDataMsg){
+
+		console.log('creating myo', pairedDataMsg.name);
+
+		var newMyo = Object.create(myoInstance);
+		//newMyo.options = extend(Myo.options, {});
+		newMyo.events = [];
+		newMyo.mac_address = pairedDataMsg.mac_address;
+		newMyo.name = pairedDataMsg.name;
+		Myo.myos.push(newMyo);
+		myoList[pairedDataMsg.myo] = newMyo;
+	}
+
+
+
+
+
+
 	/**
 	 * Utils
 	 */
@@ -85,6 +161,7 @@
 			myo.trigger(data.type, data.emg, data.timestamp);
 		},
 		'arm_synced' : function(myo, data){
+			console.log('synced', data);
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
 			myo.trigger(data.type, data, data.timestamp);
@@ -115,12 +192,18 @@
 
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
-		if(Myo.myos[data.myo]){
-			if(eventTable[data.type]){
-				eventTable[data.type](Myo.myos[data.myo], data);
-			}else{
-				Myo.myos[data.myo].trigger('status', data, data.timestamp);
-			}
+
+
+		if(data.type == 'paired' && !Myo.myos[data.myo] ) createMyo(data);
+
+		if(data.type == 'pose') console.log(data);
+
+
+
+		if(eventTable[data.type]){
+			eventTable[data.type](myoList[data.myo], data);
+		}else{
+			myoList[data.myo].trigger('status', data, data.timestamp);
 		}
 	};
 
@@ -272,57 +355,11 @@
 	};
 
 
-	Myo = {
-		options : {
-			api_version : 3,
-			socket_url  : "ws://127.0.0.1:10138/myo/"
-		},
-		events : [],
-		myos : [],
 
-		/**
-		 * Myo Constructor
-		 * @param  {number} id
-		 * @param  {object} options
-		 * @return {myo}
-		 */
-		create : function(id, options){
-			if(!id) id = 0;
-			if(Myo.myos[id]) return Myo.myos[id];
 
-			if(!Myo.socket) Myo.initSocket();
-			if(typeof id === "object") options = id;
-			options = options || {};
 
-			var newMyo = Object.create(myoInstance);
-			newMyo.options = extend(Myo.options, options);
-			newMyo.events = [];
-			newMyo.id = id;
-			Myo.myos[id] = newMyo;
-			return newMyo;
-		},
 
-		onError : function(){
-			throw 'Myo.js had an error with the socket. Myo Connect might not be running. If it is, double check the API version.';
-		},
 
-		/**
-		 * Event functions
-		 */
-		trigger : function(eventName){
-			var args = Array.prototype.slice.apply(arguments).slice(1);
-			trigger.call(Myo, Myo.events, eventName, args);
-			return Myo;
-		},
-		on : function(eventName, fn){
-			return on(Myo.events, eventName, fn);
-		},
-		initSocket : function(){
-			Myo.socket = new Socket(Myo.options.socket_url + Myo.options.api_version);
-			Myo.socket.onmessage = handleMessage;
-			Myo.socket.onerror = Myo.onError;
-		}
-	};
 	if(typeof module !== 'undefined') module.exports = Myo;
 })();
 

@@ -2,6 +2,7 @@
 
 
 ### 2.0.0 - Wednesday, 08/07/2015
+* Dramatically changed the way Myo.js creates myo instances. No more code needed! The library will create the instances for you.
 
 
 ### 1.5.0 - Thursday, 19/03/2015
