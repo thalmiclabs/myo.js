@@ -18,6 +18,7 @@
 			api_version : 3,
 			socket_url  : "ws://127.0.0.1:10138/myo/",
 		},
+		lockingPolicy : 'standard',
 
 		events : [],
 		myos : [],
@@ -28,11 +29,12 @@
 		},
 
 
-		setLockingPolicy: function (policy) {
+		setLockingPolicy: function(policy) {
 			Myo.socket.send(JSON.stringify(['command',{
 				"command": "set_locking_policy",
 				"type": policy
 			}]));
+			Myo.lockingPolicy = policy;
 			return Myo;
 		},
 
@@ -198,13 +200,11 @@
 			}]));
 			return this;
 		},
-
 		zeroOrientation : function(){
-			this.orientationOffset = quatInverse(this._lastQuant);
+			this.orientationOffset = quatInverse(this.lastQuant);
 			this.trigger('zero_orientation');
 			return this;
 		},
-
 		vibrate : function(intensity){
 			intensity = intensity || 'medium';
 			Myo.socket.send(JSON.stringify(['command',{
@@ -222,12 +222,10 @@
 			return this;
 		},
 		streamEMG : function(enabled){
-			var type = 'enabled';
-			if(enabled === false) type = 'disabled';
 			Myo.socket.send(JSON.stringify(['command',{
 				"command": "set_stream_emg",
 				"myo": this.myoConnectIndex,
-				"type" : type
+				"type" : (enabled ? 'enabled' : 'disabled')
 			}]));
 			return this;
 		}
@@ -296,19 +294,19 @@
 			if(data.pose == 'rest'){
 				myo.trigger('rest');
 				myo.lastPose = null;
-				myo.unlock();
+				if(Myo.lockingPolicy === 'standard') myo.unlock();
 			}else{
 				myo.trigger(data.pose);
 				myo.trigger('pose', data.pose);
 				myo.lastPose = data.pose;
-				myo.unlock(true);
+				if(Myo.lockingPolicy === 'standard') myo.unlock(true);
 			}
 		},
 		'rssi' : function(myo, data){
 			myo.trigger('bluetooth_strength', data.rssi, data.timestamp);
 		},
 		'orientation' : function(myo, data){
-			myo._lastQuant = data.orientation;
+			myo.lastQuant = data.orientation;
 			ori = quatRotate(myo.orientationOffset, data.orientation);
 			var imu_data = {
 				orientation : ori,
