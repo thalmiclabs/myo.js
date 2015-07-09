@@ -55,7 +55,7 @@
 	};
 	var handleMessage = function(msg){
 		var data = JSON.parse(msg.data)[1];
-		if(!data.type || !data.myo) return;
+		if(!data.type || typeof(data.myo) === 'undefined') return;
 		if(data.type == 'paired' && !Myo.myos[data.myo]) myoInstance.create(data);
 		var myo = myoList[data.myo];
 		var isStatusEvent = true;
