@@ -16,6 +16,8 @@
 * Now tracking battery level on the Myo instance. `myo.batteryLevel`
 * Added `.off()` to the core Myo object to turn off global events.
 * `myo.off()` now returns the Myo instance for chaining.
+* Now tracking warmup state on the myo instance. `myo.warmupState`
+* Fires event of `warmup_completed` when the myo has fully warmed up.
 
 
 ### 1.5.0 - Thursday, 19/03/2015

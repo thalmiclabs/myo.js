@@ -11,6 +11,9 @@ change list
 - Add a myo lifecycle section to the docs
 - Add a onHold function?
 
+- Being able to add functions to myo instasnces
+
+
 Example Ideas
 - Pose listener with locking policy (Diagnostics page style)
 - EMG and IMU graphs and event stream (Uses with flot)
@@ -27,3 +30,4 @@ Add-ons
 - Snap
 - Hard Tap
 - Orientation waves
+- Euler angles

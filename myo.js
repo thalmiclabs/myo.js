@@ -167,7 +167,7 @@
 		},
 		'orientation' : function(myo, data){
 			myo.lastQuant = data.orientation;
-			ori = utils.quatRotate(myo.orientationOffset, data.orientation);
+			var ori = utils.quatRotate(myo.orientationOffset, data.orientation);
 			var imu_data = {
 				orientation : ori,
 				accelerometer : {
@@ -197,6 +197,7 @@
 		'arm_synced' : function(myo, data){
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
+			myo.warmupState = data.warmup_state;
 			return true;
 		},
 		'arm_unsynced' : function(myo, data){
@@ -222,6 +223,10 @@
 		},
 		'unlocked' : function(myo, data){
 			myo.locked = false;
+			return true;
+		},
+		'warmup_completed' : function(myo, data){
+			myo.warmupState = 'warm';
 			return true;
 		},
 
