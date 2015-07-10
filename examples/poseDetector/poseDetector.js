@@ -3,16 +3,26 @@ Myo.methods.test = function(){
 	console.log(this.macAddress);
 }
 
+Myo.syncedMyos = [
+Myo.create({isVirtual : true}),
+Myo.create({isVirtual : true}),
+Myo.create({isVirtual : true}),
+Myo.create({isVirtual : true})
+]
 
 //This tells Myo.js to create the web sockets needed to communnicate with Myo Connect
 Myo.connect();
 
+/*
 Myo.on('arm_synced', function(data){
 	for(var i =0; i < 4; i++){
-		if(typeof slot[i].connectIndex === 'undefined'){
-			slot[i].connectIndex = this.connectIndex;
-			slot[i].name = this.name;
-			slot[i].macAddress = this.macAddress;
+		if(typeof Myo.syncedMyos[i].connectIndex === 'undefined'){
+			Myo.syncedMyos[i].connectIndex = this.connectIndex;
+			Myo.syncedMyos[i].name = this.name;
+			Myo.syncedMyos[i].macAddress = this.macAddress;
+
+
+			Myo.syncedMyos[i].trigger('arm_synced');
 
 			console.log(this.name, 'synced in slot ' + i);
 			i = 100;
@@ -20,32 +30,39 @@ Myo.on('arm_synced', function(data){
 	}
 })
 Myo.on('arm_unsynced', function(data){
-	slot.map(function(slotMyo, index){
+	Myo.syncedMyos.map(function(slotMyo, index){
 		if(data.myo == slotMyo.connectIndex){
 			console.log(slotMyo.name, 'remove from slot ' + index);
-			slot[index].connectIndex = undefined;
-			slot[index].name = undefined;
-			slot[index].macAddress = undefined;
+			Myo.syncedMyos[index].connectIndex = undefined;
+			Myo.syncedMyos[index].name = undefined;
+			Myo.syncedMyos[index].macAddress = undefined;
 
 		}
 	})
 })
 
-
-var slot = [
-	Myo.create(),
-	Myo.create(),
-	Myo.create(),
-	Myo.create()
-];
+*/
 
 
-slot[0].on('pose', function(pose){
+
+
+///////////////////////////////
+
+
+Myo.on('pose', function(pose){
+	//console.log('global', this.name, pose);
+})
+
+
+Myo.syncedMyos[0].on('pose', function(pose){
 	console.log('slot0', this.name, pose);
 })
-slot[1].on('pose', function(pose){
-	console.log('slot1', this.name, pose);
+
+Myo.syncedMyos[0].on('arm_synced', function(){
+	console.log('aww yeah');
 })
+
+
 
 
 

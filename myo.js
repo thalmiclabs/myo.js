@@ -17,6 +17,9 @@
 		events : [],
 		myos : [],
 
+		pairedMyos : [],
+		syncedMyos : [],
+
 		onError : function(){
 			throw 'Myo.js had an error with the socket. Myo Connect might not be running. If it is, double check the API version.';
 		},
@@ -56,7 +59,11 @@
 		handleMessage : function(msg){
 			var data = JSON.parse(msg.data)[1];
 			if(!data.type || typeof(data.myo) === 'undefined') return;
-			if(data.type == 'paired') Myo.create(data);
+			if(data.type == 'paired') Myo.pairedMyos.push(Myo.create(data));
+
+			if(data.type == 'arm_synced') Myo.addVirtualMyo(data);
+			if(data.type == 'arm_unsynced') Myo.removeVirtualMyo(data);
+
 
 			Myo.myos.map(function(myo){
 				if(myo.connectIndex === data.myo){
@@ -73,13 +80,60 @@
 		},
 
 
-		create : function(pairedDataMsg){
-			console.log('creating myo', pairedDataMsg);
-			pairedDataMsg = pairedDataMsg || {};
+		////////
+
+
+		addVirtualMyo : function(data){
+
+			var pairedMyo = Myo.pairedMyos.reduce(function(r, myo){
+				if(myo.connectIndex == data.myo) r = myo
+				return r;
+			});
+			var virtualMyo = Myo.syncedMyos.reduce(function(r, myo, index){
+				if(typeof myo.connectIndex == 'undefined' && !r){
+					console.log(index, 'test');
+					r = myo;
+				}
+				return r;
+			}, null);
+			console.log('adding', pairedMyo.name, virtualMyo);
+			var tempEvents = virtualMyo.events.slice(0);
+			virtualMyo = utils.merge(virtualMyo, pairedMyo);
+			virtualMyo.events = tempEvents;
+		},
+
+		removeVirtualMyo : function(data){
+
+			var virtualMyo = Myo.syncedMyos.reduce(function(r, myo){
+				if(myo.connectIndex == data.myo) r = myo
+				return r;
+			},null);
+
+			console.log('removing', virtualMyo.name);
+
+			virtualMyo.connectIndex = undefined;
+			virtualMyo.name = undefined;
+			virtualMyo.macAddress = undefined;
+		},
+
+
+
+
+
+
+		//////////////
+
+
+		create : function(myoInfo){
+			console.log('creating myo', myoInfo);
+			myoInfo = myoInfo || {};
 			var newMyo = utils.merge(Object.create(Myo.methods), {
-				macAddress      : pairedDataMsg.mac_address,
-				name            : pairedDataMsg.name,
-				connectIndex    : pairedDataMsg.myo,
+				macAddress      : myoInfo.mac_address,
+				name            : myoInfo.name,
+				connectIndex    : myoInfo.myo,
+
+				isVirtual : myoInfo.isVirtual,
+
 				locked          : true,
 				connected       : false,
 				batteryLevel    : 0,
@@ -99,6 +153,11 @@
 			trigger : function(eventName){
 				var args = Array.prototype.slice.apply(arguments).slice(1);
 				emitter.trigger.call(this, Myo.events, eventName, args);
+				emitter.trigger.call(this, this.events, eventName, args);
+				return this;
+			},
+			_trigger : function(eventName){
+				var args = Array.prototype.slice.apply(arguments).slice(1);
 				emitter.trigger.call(this, this.events, eventName, args);
 				return this;
 			},
