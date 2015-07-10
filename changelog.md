@@ -8,8 +8,8 @@
 * Renamed `Myo.options` to `Myo.defaults`
 * Removed `myo.timer()`
 * Fixed `myo.setLockingPolicy()` and moved it onto the core object, `Myo` since it controls the locking policy for all Myos.
-* Simplified the `myo.unlock()` command.
-* Pose events now implicitly call `.unlock(true)` and `.unlock()` on release, if locking policy is `standard`
+* Simplified the `myo.unlock()` command. Now takes a single boolean parameter to toggle betwen doing a timed unlock or a held unlock.
+* Pose events now implicitly call `.unlock(true)` while held and `.unlock()` on release, if locking policy is `standard`
 * Removed `rest` from being a pose
 * Removed edges from pose events. Added `_off` events to replace it. eg. `fist` and `fist_off`, `pose` and `pose_off`
 * Adding events for when the socket is ready and when the socket has closed. `ready` and `socket_closed` respectively
@@ -20,6 +20,7 @@
 * Fires event of `warmup_completed` when the myo has fully warmed up.
 * `bluetooth_strength` event now emits a percentage.
 * Added a `rssi` event that emits the dBm of the bluetooth signal.
+* Created a `methods` object on the Myo library to let developers add custom functions to myo instances. This object will be used as the prototype of all myo instances.
 
 ### 1.5.0 - Thursday, 19/03/2015
 * Added a `Myo.onError` function you can overwrite which will trigger if Myo.js can't make a connection with Myo Connect.
@@ -27,6 +28,7 @@
 * Adding a new `status` event that gets triggered for any non-pose, non-IMU, and non-EMG event from the Myo. Useful for debug windows. This will also future-proof the library if new Myo Connect events get added.
 * On connect Myo.js now merges in all values from the data packet into the myo object. This is to future-proof additional properities Myo Connect may return.
 * The catch-all event `*` now doesn't modify the arguments object.
+
 
 
 ### 1.4.0 - Tuesday, 03/03/2015

@@ -1,7 +1,56 @@
 
+Myo.methods.test = function(){
+	console.log(this.macAddress);
+}
+
+
 //This tells Myo.js to create the web sockets needed to communnicate with Myo Connect
 Myo.connect();
 
+Myo.on('arm_synced', function(data){
+	for(var i =0; i < 4; i++){
+		if(typeof slot[i].connectIndex === 'undefined'){
+			slot[i].connectIndex = this.connectIndex;
+			slot[i].name = this.name;
+			slot[i].macAddress = this.macAddress;
+
+			console.log(this.name, 'synced in slot ' + i);
+			i = 100;
+		}
+	}
+})
+Myo.on('arm_unsynced', function(data){
+	slot.map(function(slotMyo, index){
+		if(data.myo == slotMyo.connectIndex){
+			console.log(slotMyo.name, 'remove from slot ' + index);
+			slot[index].connectIndex = undefined;
+			slot[index].name = undefined;
+			slot[index].macAddress = undefined;
+
+		}
+	})
+})
+
+
+var slot = [
+	Myo.create(),
+	Myo.create(),
+	Myo.create(),
+	Myo.create()
+];
+
+
+slot[0].on('pose', function(pose){
+	console.log('slot0', this.name, pose);
+})
+slot[1].on('pose', function(pose){
+	console.log('slot1', this.name, pose);
+})
+
+
+
+
+/*
 Myo.on('status', function(data){
 	$('.events').prepend(JSON.stringify(data, null, 2));
 })
@@ -27,23 +76,4 @@ Myo.on('locked', function(){
 Myo.on('unlocked', function(){
 	$('.mainPose img').attr('src', 'img/unlocked.png');
 });
-
-
-var lowest = 110;
-var highest = 0
-Myo.on('bluetooth_strength', function(val){
-	if(val < lowest){
-		lowest = val;
-		console.log('low', lowest);
-	}
-	if(val > highest){
-		highest = val;
-		console.log('high', highest);
-	}
-});
-
-Myo.on('ready', function(){
-	setInterval(function(){
-		Myo.myos[1].requestBluetoothStrength();
-	}, 200)
-})
+*/

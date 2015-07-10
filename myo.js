@@ -44,7 +44,7 @@
 
 		connect : function(){
 			Myo.socket = new Socket(Myo.defaults.socket_url + Myo.defaults.api_version);
-			Myo.socket.onmessage = handleMessage;
+			Myo.socket.onmessage = Myo.handleMessage;
 			Myo.socket.onopen = Myo.trigger.bind(Myo, 'ready');
 			Myo.socket.onclose = Myo.trigger.bind(Myo, 'socket_closed');
 			Myo.socket.onerror = Myo.onError;
@@ -52,28 +52,34 @@
 		disconnect : function(){
 			Myo.socket.close();
 		},
-	};
-	var handleMessage = function(msg){
-		var data = JSON.parse(msg.data)[1];
-		if(!data.type || typeof(data.myo) === 'undefined') return;
-		if(data.type == 'paired' && !Myo.myos[data.myo]) myoInstance.create(data);
-		var myo = myoList[data.myo];
-		var isStatusEvent = true;
-		if(eventTable[data.type]){
-			isStatusEvent = eventTable[data.type](myo, data);
-		}
-		if(!eventTable[data.type] || isStatusEvent){
-			myo.trigger(data.type, data, data.timestamp);
-			myo.trigger('status', data, data.timestamp);
-		}
-	};
 
-	var myoInstance = {
+		handleMessage : function(msg){
+			var data = JSON.parse(msg.data)[1];
+			if(!data.type || typeof(data.myo) === 'undefined') return;
+			if(data.type == 'paired') Myo.create(data);
+
+			Myo.myos.map(function(myo){
+				if(myo.connectIndex === data.myo){
+					var isStatusEvent = true;
+					if(eventTable[data.type]){
+						isStatusEvent = eventTable[data.type](myo, data);
+					}
+					if(!eventTable[data.type] || isStatusEvent){
+						myo.trigger(data.type, data, data.timestamp);
+						myo.trigger('status', data, data.timestamp);
+					}
+				}
+			})
+		},
+
+
 		create : function(pairedDataMsg){
-			var newMyo = utils.merge(Object.create(myoInstance), {
+			console.log('creating myo', pairedDataMsg);
+			pairedDataMsg = pairedDataMsg || {};
+			var newMyo = utils.merge(Object.create(Myo.methods), {
 				macAddress      : pairedDataMsg.mac_address,
 				name            : pairedDataMsg.name,
-				myoConnectIndex : pairedDataMsg.myo,
+				connectIndex    : pairedDataMsg.myo,
 				locked          : true,
 				connected       : false,
 				batteryLevel    : 0,
@@ -84,66 +90,69 @@
 				orientationOffset : {x : 0,y : 0,z : 0,w : 1},
 				events : [],
 			});
-			delete newMyo.create;
 			Myo.myos.push(newMyo);
-			myoList[pairedDataMsg.myo] = newMyo;
+			//myoList[pairedDataMsg.myo] = newMyo;
+			return newMyo;
 		},
-		trigger : function(eventName){
-			var args = Array.prototype.slice.apply(arguments).slice(1);
-			emitter.trigger.call(this, Myo.events, eventName, args);
-			emitter.trigger.call(this, this.events, eventName, args);
-			return this;
-		},
-		on : function(eventName, fn){
-			return emitter.on(this.events, eventName, fn);
-		},
-		off : function(eventName){
-			this.events = emitter.off(this.events, eventName);
-			return this;
-		},
-		lock : function(){
-			Myo.socket.send(JSON.stringify(["command", {
-				"command": "lock",
-				"myo": this.myoConnectIndex
-			}]));
-			return this;
-		},
-		unlock : function(hold){
-			Myo.socket.send(JSON.stringify(["command", {
-				"command": "unlock",
-				"myo": this.myoConnectIndex,
-				"type": (hold ? "hold" : "timed")
-			}]));
-			return this;
-		},
-		zeroOrientation : function(){
-			this.orientationOffset = utils.quatInverse(this.lastQuant);
-			this.trigger('zero_orientation');
-			return this;
-		},
-		vibrate : function(intensity){
-			intensity = intensity || 'medium';
-			Myo.socket.send(JSON.stringify(['command',{
-				"command": "vibrate",
-				"myo": this.myoConnectIndex,
-				"type": intensity
-			}]));
-			return this;
-		},
-		requestBluetoothStrength : function(){
-			Myo.socket.send(JSON.stringify(['command',{
-				"command": "request_rssi",
-				"myo": this.myoConnectIndex
-			}]));
-			return this;
-		},
-		streamEMG : function(enabled){
-			Myo.socket.send(JSON.stringify(['command',{
-				"command": "set_stream_emg",
-				"myo": this.myoConnectIndex,
-				"type" : (enabled ? 'enabled' : 'disabled')
-			}]));
-			return this;
+
+		methods : {
+			trigger : function(eventName){
+				var args = Array.prototype.slice.apply(arguments).slice(1);
+				emitter.trigger.call(this, Myo.events, eventName, args);
+				emitter.trigger.call(this, this.events, eventName, args);
+				return this;
+			},
+			on : function(eventName, fn){
+				return emitter.on(this.events, eventName, fn);
+			},
+			off : function(eventName){
+				this.events = emitter.off(this.events, eventName);
+				return this;
+			},
+			lock : function(){
+				Myo.socket.send(JSON.stringify(["command", {
+					"command": "lock",
+					"myo": this.connectIndex
+				}]));
+				return this;
+			},
+			unlock : function(hold){
+				Myo.socket.send(JSON.stringify(["command", {
+					"command": "unlock",
+					"myo": this.connectIndex,
+					"type": (hold ? "hold" : "timed")
+				}]));
+				return this;
+			},
+			zeroOrientation : function(){
+				this.orientationOffset = utils.quatInverse(this.lastQuant);
+				this.trigger('zero_orientation');
+				return this;
+			},
+			vibrate : function(intensity){
+				intensity = intensity || 'medium';
+				Myo.socket.send(JSON.stringify(['command',{
+					"command": "vibrate",
+					"myo": this.connectIndex,
+					"type": intensity
+				}]));
+				return this;
+			},
+			requestBluetoothStrength : function(){
+				Myo.socket.send(JSON.stringify(['command',{
+					"command": "request_rssi",
+					"myo": this.connectIndex
+				}]));
+				return this;
+			},
+			streamEMG : function(enabled){
+				Myo.socket.send(JSON.stringify(['command',{
+					"command": "set_stream_emg",
+					"myo": this.connectIndex,
+					"type" : (enabled ? 'enabled' : 'disabled')
+				}]));
+				return this;
+			}
 		}
 	};
 
@@ -206,11 +215,8 @@
 			return true;
 		},
 		'connected' : function(myo, data){
-			myo.connect_version = data.version.join('.');
+			myo.connectVersion = data.version.join('.');
 			myo.connected = true;
-			for(var attr in data){
-				myo[attr] = data[attr];
-			}
 			return true;
 		},
 		'disconnected' : function(myo, data){
@@ -283,10 +289,8 @@
 
 	var utils = {
 		merge : function(obj1,obj2){
-			var obj3 = {};
-			for(var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-			for(var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
-			return obj3;
+			for(var attrname in obj2) { obj1[attrname] = obj2[attrname]; }
+			return obj1;
 		},
 		quatInverse : function(q) {
 			var len = Math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
