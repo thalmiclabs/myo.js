@@ -27,3 +27,23 @@ Myo.on('locked', function(){
 Myo.on('unlocked', function(){
 	$('.mainPose img').attr('src', 'img/unlocked.png');
 });
+
+
+var lowest = 110;
+var highest = 0
+Myo.on('bluetooth_strength', function(val){
+	if(val < lowest){
+		lowest = val;
+		console.log('low', lowest);
+	}
+	if(val > highest){
+		highest = val;
+		console.log('high', highest);
+	}
+});
+
+Myo.on('ready', function(){
+	setInterval(function(){
+		Myo.myos[1].requestBluetoothStrength();
+	}, 200)
+})

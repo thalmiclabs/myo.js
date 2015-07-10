@@ -18,7 +18,8 @@
 * `myo.off()` now returns the Myo instance for chaining.
 * Now tracking warmup state on the myo instance. `myo.warmupState`
 * Fires event of `warmup_completed` when the myo has fully warmed up.
-
+* `bluetooth_strength` event now emits a percentage.
+* Added a `rssi` event that emits the dBm of the bluetooth signal.
 
 ### 1.5.0 - Thursday, 19/03/2015
 * Added a `Myo.onError` function you can overwrite which will trigger if Myo.js can't make a connection with Myo Connect.

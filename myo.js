@@ -231,7 +231,9 @@
 		},
 
 		'rssi' : function(myo, data){
-			myo.trigger('bluetooth_strength', data.rssi, data.timestamp);
+			data.bluetooth_strength =  utils.getStrengthFromRssi(data.rssi);
+			myo.trigger('bluetooth_strength', data.bluetooth_strength, data.timestamp);
+			myo.trigger('rssi', data.rssi, data.timestamp);
 			myo.trigger('status', data, data.timestamp);
 		},
 		'battery_level' : function(myo, data){
@@ -302,7 +304,14 @@
 				y: q.w * r.y - q.x * r.z + q.y * r.w + q.z * r.x,
 				z: q.w * r.z + q.x * r.y - q.y * r.x + q.z * r.w
 			};
-		}
+		},
+		getStrengthFromRssi : function(rssi){
+			var min = -95;
+			var max = -40;
+			rssi = (rssi < min) ? min : rssi;
+			rssi = (rssi > max) ? max : rssi;
+			return Math.round(((rssi-min)*100)/(max-min) * 100)/100;
+		},
 	};
 
 	if(typeof module !== 'undefined') module.exports = Myo;
