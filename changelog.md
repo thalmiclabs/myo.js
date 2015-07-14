@@ -21,6 +21,11 @@
 * `bluetooth_strength` event now emits a percentage.
 * Added a `rssi` event that emits the dBm of the bluetooth signal.
 * Created a `methods` object on the Myo library to let developers add custom functions to myo instances. This object will be used as the prototype of all myo instances.
+* Modifed the parameters on the `Myo.create()` call. It's also now not needed, but leaving it exposed for other add-ons to use.
+
+
+
+
 
 ### 1.5.0 - Thursday, 19/03/2015
 * Added a `Myo.onError` function you can overwrite which will trigger if Myo.js can't make a connection with Myo Connect.
