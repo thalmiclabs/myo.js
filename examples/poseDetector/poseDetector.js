@@ -1,17 +1,55 @@
 
-Myo.methods.test = function(){
-	console.log(this.macAddress);
+var slots = [];
+for(var i =0; i<4;i++){
+	var slotMyo = Myo.create({
+		events : [],
+		virtual : true,
+		position : Myo.myos.length
+	});
+	slots.push(slotMyo);
+	Myo.myos.push(slotMyo);
 }
 
-Myo.syncedMyos = [
-Myo.create({isVirtual : true}),
-Myo.create({isVirtual : true}),
-Myo.create({isVirtual : true}),
-Myo.create({isVirtual : true})
-]
+var transferSlot = function(index, proto){
+	var temp = slots[index].events.slice(0);
+	var pos = slots[index].position;
+	slots[index] = Object.create(proto);
+	slots[index].events = temp;
+	slots[index].position = pos;
+	slots[index].virtual = true;
+	Myo.myos[pos] = slots[index];
+}
 
-//This tells Myo.js to create the web sockets needed to communnicate with Myo Connect
-Myo.connect();
+
+Myo.on('arm_synced', function(){
+	if(this.virtual) return;
+	var slotNum;
+	for(var i =0; i<4;i++){
+		if(typeof slots[i].connectIndex === 'undefined'){
+			slotNum = i;
+			break;
+		}
+	}
+	if(typeof slotNum !=='undefined'){
+		transferSlot(slotNum, this);
+		slots[slotNum].trigger('arm_synced');
+	}
+});
+
+Myo.on('arm_unsynced', function(data){
+	if(this.virtual) return;
+	var slotNum;
+	for(var i =0; i<4;i++){
+		if(slots[i].connectIndex === this.connectIndex){
+			slotNum = i;
+			break;
+		}
+	}
+	if(typeof slotNum !=='undefined') transferSlot(slotNum, Object.create(Myo.methods));
+});
+
+
+
 
 /*
 Myo.on('arm_synced', function(data){
@@ -48,20 +86,30 @@ Myo.on('arm_unsynced', function(data){
 
 ///////////////////////////////
 
+Myo.connect();
+
 
 Myo.on('pose', function(pose){
 	//console.log('global', this.name, pose);
 })
 
 
-Myo.syncedMyos[0].on('pose', function(pose){
+slots[0].on('pose', function(pose){
 	console.log('slot0', this.name, pose);
 })
 
-Myo.syncedMyos[0].on('arm_synced', function(){
-	console.log('aww yeah');
+slots[0].on('arm_synced', function(){
+	console.log('slot0 sync!');
+});
+
+slots[0].on('arm_unsynced', function(){
+	console.log('slot0 unsync');
 })
 
+
+slots[1].on('pose', function(pose){
+	console.log('slot1', this.name, pose);
+})
 
 
 

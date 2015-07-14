@@ -1,6 +1,7 @@
+
 html, body{
-	width       : 100%;
-	margin : 0;
+	width   : 100%;
+	margin  : 0;
 	padding : 0;
 }
 
@@ -12,18 +13,18 @@ body{
 	line-height : 20px;
 }
 
-
 body{
-	text-align: center;
+	text-align : center;
 }
 
 .orientationGraph{
-	width : 500px;
 	height : 200px;
+	width  : 500px;
 }
 
 .emgGraph{
 	display : inline-block;
-	width : 500px;
-	height : 100px;
+
+	height  : 100px;
+	width   : 500px;
 }

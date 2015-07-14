@@ -1,5 +1,4 @@
 (function(){
-
 	var Socket, myoList = {};
 	if(typeof window === 'undefined'){
 		Socket = require('ws');
@@ -16,9 +15,6 @@
 		lockingPolicy : 'standard',
 		events : [],
 		myos : [],
-
-		pairedMyos : [],
-		syncedMyos : [],
 
 		onError : function(){
 			throw 'Myo.js had an error with the socket. Myo Connect might not be running. If it is, double check the API version.';
@@ -59,11 +55,13 @@
 		handleMessage : function(msg){
 			var data = JSON.parse(msg.data)[1];
 			if(!data.type || typeof(data.myo) === 'undefined') return;
-			if(data.type == 'paired') Myo.pairedMyos.push(Myo.create(data));
-
-			if(data.type == 'arm_synced') Myo.addVirtualMyo(data);
-			if(data.type == 'arm_unsynced') Myo.removeVirtualMyo(data);
-
+			if(data.type == 'paired'){
+				Myo.myos.push(Myo.create({
+					macAddress      : data.mac_address,
+					name            : data.name,
+					connectIndex    : data.myo
+				}));
+			}
 
 			Myo.myos.map(function(myo){
 				if(myo.connectIndex === data.myo){
@@ -79,61 +77,11 @@
 			})
 		},
 
-
-		////////
-
-
-		addVirtualMyo : function(data){
-
-			var pairedMyo = Myo.pairedMyos.reduce(function(r, myo){
-				if(myo.connectIndex == data.myo) r = myo
-				return r;
-			});
-			var virtualMyo = Myo.syncedMyos.reduce(function(r, myo, index){
-				if(typeof myo.connectIndex == 'undefined' && !r){
-					console.log(index, 'test');
-					r = myo;
-				}
-				return r;
-			}, null);
-			console.log('adding', pairedMyo.name, virtualMyo);
-			var tempEvents = virtualMyo.events.slice(0);
-			virtualMyo = utils.merge(virtualMyo, pairedMyo);
-			virtualMyo.events = tempEvents;
-		},
-
-		removeVirtualMyo : function(data){
-
-			var virtualMyo = Myo.syncedMyos.reduce(function(r, myo){
-				if(myo.connectIndex == data.myo) r = myo
-				return r;
-			},null);
-
-			console.log('removing', virtualMyo.name);
-
-			virtualMyo.connectIndex = undefined;
-			virtualMyo.name = undefined;
-			virtualMyo.macAddress = undefined;
-		},
-
-
-
-
-
-
-		//////////////
-
-
-		create : function(myoInfo){
-			console.log('creating myo', myoInfo);
-			myoInfo = myoInfo || {};
-			var newMyo = utils.merge(Object.create(Myo.methods), {
-				macAddress      : myoInfo.mac_address,
-				name            : myoInfo.name,
-				connectIndex    : myoInfo.myo,
-
-				isVirtual : myoInfo.isVirtual,
-
+		create : function(props){
+			var myoProps = utils.merge({
+				macAddress      : undefined,
+				name            : undefined,
+				connectIndex    : undefined,
 				locked          : true,
 				connected       : false,
 				batteryLevel    : 0,
@@ -143,10 +91,8 @@
 				warmupState     : undefined,
 				orientationOffset : {x : 0,y : 0,z : 0,w : 1},
 				events : [],
-			});
-			Myo.myos.push(newMyo);
-			//myoList[pairedDataMsg.myo] = newMyo;
-			return newMyo;
+			}, props || {});
+			return utils.merge(Object.create(Myo.methods), myoProps);
 		},
 
 		methods : {
@@ -306,9 +252,7 @@
 			myo.trigger('battery_level', data.battery_level, data.timestamp);
 			myo.trigger('status', data, data.timestamp);
 		},
-
 	};
-
 
 
 	var emitter = {
