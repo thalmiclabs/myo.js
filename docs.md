@@ -64,6 +64,9 @@ Stores the macAddress of the Myo.
 **name** &nbsp; `myo.name` <br>
 Stores the name of the Myo.
 
+**connectIndex** &nbsp; `myo.connectIndex` <br>
+This index is used to listen and send specific messages to Myo Connect.
+
 **connectVerion** &nbsp; `myo.connectVerion` <br>
 Stores the version of Myo Connect.
 
