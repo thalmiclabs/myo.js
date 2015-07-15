@@ -1,0 +1,33 @@
+change list
+- Actually fix the lock policies. (how du?!)
+//- Is there anything for hard lock?
+- What should we add for warm-up (Add warm-up events)
+
+- Move a lot of the experimental features into add-ons
+- Make 'good' ons their own npm modules (like snap detection, mouse control, etc.)
+- Create a -ton- of new examples. I'll need Paul and you to help me with ideas.
+- Push the examples into a gh-pages branch to use the github.io pages feature
+- Add warm-up state
+- Add a myo lifecycle section to the docs
+- Add a onHold function?
+
+- Being able to add functions to myo instasnces
+
+
+Example Ideas
+- Pose listener with locking policy (Diagnostics page style)
+- EMG and IMU graphs and event stream (Uses with flot)
+- RPS game (Mutli myo support)
+- Website enabled demo (Have a little myo enabled popup, with some controls like scrolling, or pressing buttons)
+
+Add-on Specific examples
+- Arcade shooter with Muscle Crossiant (Mouse Control add-on)
+- Hue Light demo (Snap add-on and Hue lights API)
+
+
+Add-ons
+- MouseControl
+- Snap
+- Hard Tap
+- Orientation waves
+- Euler angles

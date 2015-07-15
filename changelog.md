@@ -1,11 +1,40 @@
 # Changelog
 
+
+### 2.0.0 - Wednesday, 08/07/2015
+* Dramatically changed the way Myo.js creates myo instances. No more code needed! The library will create the instances for you as they are paired.
+* Hiding the need for the developer to worry about the Myo index value in Myo Connect. Myo.js now uses mac addresses as the main form of Myo id
+* Renamed `Myo.initSocket()` to `Myo.connect()` and added `Myo.disconnect()` to close the web socket
+* Renamed `Myo.options` to `Myo.defaults`
+* Removed `myo.timer()`
+* Fixed `myo.setLockingPolicy()` and moved it onto the core object `Myo`, since it controls the locking policy for all Myos.
+* Simplified the `myo.unlock()` command. Now takes a single boolean parameter to toggle betwen doing a timed unlock or a held unlock.
+* Pose events now implicitly call `.unlock(true)` while held and `.unlock()` on release, if locking policy is `standard`. This mimics the behaviour of most other Myo apps.
+* Removed `rest` from being a pose
+* Removed edges from pose events. Added `_off` events to replace it. eg. `fist` and `fist_off`, `pose` and `pose_off`
+* Adding events for when the socket is ready and when the socket has closed. `ready` and `socket_closed` respectively
+* Now tracking battery level on the Myo instance. `myo.batteryLevel`
+* Added `.off()` to the core Myo object to turn off global events.
+* `myo.off()` now returns the Myo instance for chaining.
+* Now tracking warmup state on the myo instance. `myo.warmupState`
+* Fires event of `warmup_completed` when the myo has fully warmed up.
+* `bluetooth_strength` event now emits a percentage.
+* Added a `rssi` event that emits the dBm of the bluetooth signal.
+* Created a `methods` object on the Myo library to let developers add custom functions to myo instances. This object will be used as the prototype of all myo instances.
+* Modifed the parameters on the `Myo.create()` call. It's also now not needed, but leaving it exposed for other add-ons to use.
+* Added a `myo.synced` flag to easily see which myos are synced with an arm or not.
+
+
+
+
+
 ### 1.5.0 - Thursday, 19/03/2015
 * Added a `Myo.onError` function you can overwrite which will trigger if Myo.js can't make a connection with Myo Connect.
 * Creating mutliple instances of a myo with the same id won't clobber connection information now.
 * Adding a new `status` event that gets triggered for any non-pose, non-IMU, and non-EMG event from the Myo. Useful for debug windows. This will also future-proof the library if new Myo Connect events get added.
 * On connect Myo.js now merges in all values from the data packet into the myo object. This is to future-proof additional properities Myo Connect may return.
 * The catch-all event `*` now doesn't modify the arguments object.
+
 
 
 ### 1.4.0 - Tuesday, 03/03/2015

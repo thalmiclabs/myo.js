@@ -1,0 +1,30 @@
+
+html, body{
+	width   : 100%;
+	margin  : 0;
+	padding : 0;
+}
+
+body{
+	background  : #10161d url('img/dot_grid.png');
+	font-family : 'blender_prothin';
+	font-size   : 12px;
+	color       : #58bccc;
+	line-height : 20px;
+}
+
+body{
+	text-align : center;
+}
+
+.orientationGraph{
+	height : 200px;
+	width  : 500px;
+}
+
+.emgGraph{
+	display : inline-block;
+
+	height  : 100px;
+	width   : 500px;
+}
