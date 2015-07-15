@@ -84,6 +84,7 @@
 				connectIndex    : undefined,
 				locked          : true,
 				connected       : false,
+				synced          : false,
 				batteryLevel    : 0,
 				lastIMU         : undefined,
 				arm             : undefined,
@@ -212,11 +213,14 @@
 			myo.arm = data.arm;
 			myo.direction = data.x_direction;
 			myo.warmupState = data.warmup_state;
+			myo.synced = true;
 			return true;
 		},
 		'arm_unsynced' : function(myo, data){
 			myo.arm = undefined;
 			myo.direction = undefined;
+			myo.warmupState = undefined;
+			myo.synced = false;
 			return true;
 		},
 		'connected' : function(myo, data){

@@ -7,9 +7,9 @@
 * Renamed `Myo.initSocket()` to `Myo.connect()` and added `Myo.disconnect()` to close the web socket
 * Renamed `Myo.options` to `Myo.defaults`
 * Removed `myo.timer()`
-* Fixed `myo.setLockingPolicy()` and moved it onto the core object, `Myo` since it controls the locking policy for all Myos.
+* Fixed `myo.setLockingPolicy()` and moved it onto the core object `Myo`, since it controls the locking policy for all Myos.
 * Simplified the `myo.unlock()` command. Now takes a single boolean parameter to toggle betwen doing a timed unlock or a held unlock.
-* Pose events now implicitly call `.unlock(true)` while held and `.unlock()` on release, if locking policy is `standard`
+* Pose events now implicitly call `.unlock(true)` while held and `.unlock()` on release, if locking policy is `standard`. This mimics the behaviour of most other Myo apps.
 * Removed `rest` from being a pose
 * Removed edges from pose events. Added `_off` events to replace it. eg. `fist` and `fist_off`, `pose` and `pose_off`
 * Adding events for when the socket is ready and when the socket has closed. `ready` and `socket_closed` respectively
@@ -22,6 +22,7 @@
 * Added a `rssi` event that emits the dBm of the bluetooth signal.
 * Created a `methods` object on the Myo library to let developers add custom functions to myo instances. This object will be used as the prototype of all myo instances.
 * Modifed the parameters on the `Myo.create()` call. It's also now not needed, but leaving it exposed for other add-ons to use.
+* Added a `myo.synced` flag to easily see which myos are synced with an arm or not.
 
 
 

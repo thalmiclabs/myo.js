@@ -2,17 +2,11 @@
 
 ## myo core
 
-**options** &nbsp; `Myo.options` <br>
-Here you can review and set the default options that will be used for each Myo instance.
-
 **myos** &nbsp; `Myo.myos` <br>
-An array containing the created Myo instances indexed by their id.
+An array containing the created Myo instances when a Myo pairs with Myo Connect
 
-**create** &nbsp; `Myo.create(), Myo.create(id), Myo.create(opts), Myo.create(id, opts)` <br>
-Creates and returns a new Myo instance. If no `id` is provided, defaults to 0. `opts` provided will overwrite the default options.
-
-	var myMyo = Myo.create();
-	var thirdMyo = Myo.create(2, {armbusy_threshold : 10});
+**create** &nbsp; `Myo.create(), Myo.create(data)` <br>
+Creates and returns a new Myo instance. `data` can be an object which will be merged onto the instance. This command is generally not needed, as Myo.js will create instances for every paired Myo on your computer automatically.
 
 **on** &nbsp; `Myo.on(eventName, callback)` <br>
 Creates a global listener for each Myo instance for the given event. The `callback`'s context will be the Myo instance.
@@ -29,8 +23,20 @@ Every event is sent with a timestamp in microseconds. Thus, the full signature o
 
 Of course, declaration of parameters are optional in callbacks.
 
-**initSocket** &nbsp; `Myo.initSocket()` <br>
-Creates web socket and sets up the message listener. Called implictly whenever you create a new myo instance.
+**off** &nbsp; `Myo.off(eventName)` <br>
+Removes a create global listener.
+
+**trigger** &nbsp; `Myo.trigger(eventName)` <br>
+Triggers a create global event which all myos within the `Myo.myos` array will respond to.
+
+**setLockingPolicy** &nbsp; `Myo.setLockingPolicy(policyType)` <br>
+Sets the locking policy in Myo Connect. Can either be `"standard"` or `"none"`. Standard will automatically lock the Myo after a while, while None will constantly stream events regardless of lock state.
+
+**connect** &nbsp; `Myo.connect()` <br>
+Creates web socket and sets up the message listener.
+
+**disconnect** &nbsp; `Myo.disconnect()` <br>
+Closes the web socket
 
 **onError** &nbsp; `Myo.onError` <br>
 `Myo.onError` is triggered whenever Myo.js can't establish a connection to Myo Connect. This could be that it's not running, or that your API version is out of date. You can override this function with a function of your choice.
@@ -40,12 +46,25 @@ Creates web socket and sets up the message listener. Called implictly whenever y
 	}
 	Myo.create();
 
+**methods** &nbsp; `Myo.methods` <br>
+`methods` is an object of functions that will be added to each myo instance when it is created. If you are making an add-on you may want to add your own functions to this object.
+
+	Myo.methods.helloWorld = function(){
+		console.log('Hello ' + this.name);
+	}
+	Myo.connect();
+	Myo.myos[0].helloWorld();
+
+
 
 ## myo data
-**id** &nbsp; `myo.id` <br>
-Stores the id of the Myo.
+**macAddress** &nbsp; `myo.macAddress` <br>
+Stores the macAddress of the Myo.
 
-**connect_verion** &nbsp; `myo.connect_verion` <br>
+**name** &nbsp; `myo.name` <br>
+Stores the name of the Myo.
+
+**connectVerion** &nbsp; `myo.connectVerion` <br>
 Stores the version of Myo Connect.
 
 **direction** &nbsp; `myo.direction` <br>
@@ -60,12 +79,17 @@ Stores the offset quaternion used with `myo.zeroOrientation()`.
 **lastIMU** &nbsp; `myo.lastIMU` <br>
 Stores the last IMU object. Useful when you need to look at changes over time.
 
-**isConnected** &nbsp; `myo.isConnected` <br>
+**connected** &nbsp; `myo.connected` <br>
 Stores a boolean on whether the Myo is currently connected.
 
-**isLocked** &nbsp; `myo.isLocked` <br>
+**locked** &nbsp; `myo.locked` <br>
 Stores a boolean on whether the Myo is currently locked.
 
+**warmupState** &nbsp; `myo.warmupState` <br>
+Stores the warmup state of the Myo. Either `"cold"` or `"warm"`
+
+**batteryLevel** &nbsp; `myo.batteryLevel` <br>
+Stores the last recorded battery level from the device. Range from 0 to 100.
 
 
 
@@ -75,9 +99,11 @@ Stores a boolean on whether the Myo is currently locked.
 **on** &nbsp; `myo.on(eventName, function(arg1, arg2,...))` <br>
 On sets up a listener for a specific event name. Whenever that event is triggered, each function added with `on()`, will be called with whatever arguments `trigger()` was called with. Returns a unique event id for this listener.
 
-	myMyo.on('fist', function(edge){
-		if(edge)  console.log('fist pose start');
-		if(!edge) console.log('fist pose end');
+	myMyo.on('fist', function(){
+		console.log('fist pose start');
+	});
+	myMyo.on('fist_off', function(){
+		console.log('fist pose end');
 	});
 
 **trigger** &nbsp; `myo.trigger(eventName, arg1, arg2, ...)` <br>
@@ -93,18 +119,10 @@ Trigger activates each listener for a specific event. You can add any additional
 When called, where ever the Myo is orientated will now be the origin. This offset value will be stored at `myo.orientationOffset`.
 
 **lock** &nbsp; `myo.lock()` <br>
-Sets `Myo.isLocked` to true and fires the `lock` event. Myo.js does nothing with `myo.isLocked`, it's up to the developer to implement locking features. For example:
+Sends a command to Myo Connect to lock the device. This will stop the Myo from transmitting pose events.
 
-	myMyo.on('fist', function(edge){
-		if(Myo.isLocked || !edge) return;
-		Enemies.smash();
-	});
-
-**unlock** &nbsp; `myo.unlock(), Myo.unlock(timeout)` <br>
-Sets `Myo.isLocked` to false and fires the `unlock` event. If a `timeout` is passed in, it will call `myo.lock()` after the timeout has passed. Subsequient calls will reset the timeout.
-
-	myMyo.unlock(); //Will unlock the Myo indefinitely
-	myMyo.unlock(1000); //Unlocks the Myo, but will relock after 1 second
+**unlock** &nbsp; `myo.unlock(), Myo.unlock(true)` <br>
+This will send a command to Myo Connect unlock the Myo. If `true` is passed it will send a timed unlock, where Myo Connect will unlock the Myo for ~2 seconds, then lock it. Myo.js uses this command internally when the locking policy is set to standard.
 
 **vibrate** &nbsp; `myo.vibrate(), myo.vibrate('short' | 'medium' | 'long')` <br>
 Makes the Myo vibrate with a given duration. Defaults to `'medium'`.
@@ -134,16 +152,6 @@ Requests the connection strength of the Myo to be sent. Listen to the `'bluetoot
 		console.log('Such strength', val);
 	});
 	myMyo.requestBluetoothStrength();
-
-**timer** &nbsp; `myo.timer(on_off, duration, callback)` <br>
-Timer is useful for when you want a simple timeout for an action, such as holding a gesture for a period of time. `on_off` is a boolean that will create or disable the current timer with a duration of `duration` that will fire the `callback`.
-
-	//Fires a spread_hold event if spread is held for half a second
-	myMyo.on('fingers_spread', function(edge){
-		myMyo.timer(edge, 500, function(){
-			myMyo.trigger('spread_hold')
-		})
-	})
 
 
 
@@ -202,20 +210,35 @@ This event is fired whenever we receive orientation data from the Myo. This data
 This event is fired whenever we receive acceleration data from the Myo. This data is grouped as 3d coordinates.
 
 **bluetooth_strength** &nbsp; `myo.on('bluetooth_strength', function(data){ ... })` <br>
-Fired after `Myo.requestBluetoothStrength()` is called. Returns a measure of the bluetooth strength the Myo is connected to.
+Fired after `Myo.requestBluetoothStrength()` is called. Returns a percentage measure of the bluetooth strength the Myo is connected to.
 
-**pose** &nbsp; `myo.on('pose', function(pose_name, edge){ ... })` <br>
-Whenever the Myo detects a pose change it will fire a `pose` event. The listener will be called with the `pose_name` and the `edge` which will be `true` if it is the start of the pose and `false` if it is the end of the pose. Myo.js will also fire an individual event for each pose with the `edge` as the only parameter for the listener. Here is a list of all the poses : `rest`,`fingers_spread`,`wave_in`,`wave_out`,`fist`,`thumb_to_pinky`.
+**rssi** &nbsp; `myo.on('rssi', function(data){ ... })` <br>
+Fired after `Myo.requestBluetoothStrength()` is called. Returns a measure of the bluetooth strength in dBm of the Myo is connected to.
 
-	Myo.on('pose', function(pose_name, edge){
-		if(pose_name != 'rest' && edge){
-			console.log('Started ', pose_name);
-		}
+**pose** &nbsp; `myo.on('pose', function(pose_name){ ... })` <br>
+Whenever the Myo detects a pose change it will fire a `pose` event. The listener will be called with the `pose_name`. Myo.js will also fire an individual event for each pose. Here is a list of all the poses : `fingers_spread`,`wave_in`,`wave_out`,`fist`,`double_tap`.
+
+	Myo.on('pose', function(pose_name){
+		console.log('Started ', pose_name);
 	});
 	var myMyo = Myo.create();
 	myMyo.on('wave_in', function(edge){
-		if(edge) Menu.left()
+		Menu.left()
 	})
+
+**pose_off** &nbsp; `myo.on('pose_off', function(pose_name){ ... })` <br>
+Whenever the Myo detects the end of a pose it will fire a `pose_off` event. The listener will be called with the `pose_name_off`. Myo.js will also fire an individual event for each pose. Here is a list of all the poses : `fingers_spread_off`,`wave_in_off`,`wave_out_off`,`fist_off`,`double_tap_off`.
+
+	Myo.on('pose_off', function(pose_name){
+		console.log('Ended ', pose_name);
+	});
+
+**rest** &nbsp; `myo.on('rest', function(){ ... })` <br>
+The rest event is fired whenever the Myo does not detect any gestures.
+
+**warmup_completed** &nbsp; `myo.on('warmup_completed', function(){ ... })` <br>
+This will fire when the Myo is finished warming up. It will change it's `myo.warmupState` from `"cold"` to `"warm"`.
+
 
 **lock** &nbsp; `myo.on('lock', function(){ ... })` <br>
 Fired whenever `myo.lock()` is called. Useful for firing vibration events, or updating UI when the Myo becomes locked.
