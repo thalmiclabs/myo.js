@@ -1,5 +1,10 @@
 # Changelog
 
+### 2.0.2 - Tuesday, 21/07/2015
+* Added the ability to pass `false` to `.off()` to remove all events
+
+### 2.0.1 - Tuesday, 21/07/2015
+* Left out `.requestBatteryLevel()` during the v2 overhaul
 
 ### 2.0.0 - Wednesday, 08/07/2015
 * Dramatically changed the way Myo.js creates myo instances. No more code needed! The library will create the instances for you as they are paired.
