@@ -291,7 +291,7 @@
 		},
 		off : function(events, name){
 			events = events.reduce(function(result, event){
-				if(event.name == name || event.id == name) {
+				if(event.name == name || event.id == name || !name) {
 					return result;
 				}
 				result.push(event);
