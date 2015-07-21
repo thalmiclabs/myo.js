@@ -88,6 +88,9 @@ Stores a boolean on whether the Myo is currently connected.
 **locked** &nbsp; `myo.locked` <br>
 Stores a boolean on whether the Myo is currently locked.
 
+**synced** &nbsp; `myo.locked` <br>
+Stores a boolean on whether the Myo is currently synced.
+
 **warmupState** &nbsp; `myo.warmupState` <br>
 Stores the warmup state of the Myo. Either `"cold"` or `"warm"`
 
