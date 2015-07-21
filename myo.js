@@ -151,6 +151,13 @@
 				}]));
 				return this;
 			},
+			requestBatteryLevel : function(){
+				Myo.socket.send(JSON.stringify(['command',{
+					"command": "request_battery_level",
+					"myo": this.connectIndex
+				}]));
+				return this;
+			},
 			streamEMG : function(enabled){
 				Myo.socket.send(JSON.stringify(['command',{
 					"command": "set_stream_emg",
