@@ -91,6 +91,7 @@
 				direction       : undefined,
 				warmupState     : undefined,
 				orientationOffset : {x : 0,y : 0,z : 0,w : 1},
+				lastQuant       : {x : 0,y : 0,z : 0,w : 1},
 				events : [],
 			}, props || {});
 			return utils.merge(Object.create(Myo.methods), myoProps);
