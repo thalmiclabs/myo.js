@@ -19,7 +19,7 @@
 
 #### core extended examples
 
-###### Myo.on:
+###### `Myo.on`:
 
 ```javascript
 Myo.on('connected', function(){
@@ -37,7 +37,7 @@ Myo.on('connected', function(data, timestamp){
 
 Of course, declaration of parameters are optional in callbacks.
 
-###### Myo.onError:
+###### `Myo.onError`:
 
 ```javascript
 Myo.methods.helloWorld = function(){
@@ -90,7 +90,7 @@ myMyo.on('fist_off', function(){
 });
 ```
 
-###### Myo.requestBatteryLevel
+###### `Myo.requestBatteryLevel`
 
 ```javascript
 myMyo.on('battery_level', function(val){
@@ -99,7 +99,7 @@ myMyo.on('battery_level', function(val){
 myMyo.requestBatteryLevel();
 ```
 
-###### Myo.requestBluetoothStrength
+###### `Myo.requestBluetoothStrength`
 
 ```javascript
 myMyo.on('bluetooth_strength', function(val){
@@ -108,7 +108,7 @@ myMyo.on('bluetooth_strength', function(val){
 myMyo.requestBluetoothStrength();
 ```
 
-###### Myo.streamEMG
+###### `Myo.streamEMG`
 
 ```javascript
 myMyo.on('connected', function(){
@@ -119,7 +119,7 @@ myMyo.on('emg', function(data){
 });
 ```
 
-###### Myo.trigger
+###### `Myo.trigger`
 
 ```javascript
 myMyo.on('foobar', function(msg){
