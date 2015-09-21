@@ -10,7 +10,7 @@ Myo.on('connected', function(){
 	}, 25)
 })
 
-Myo.connect();
+Myo.connect('com.myojs.emgGraphs');
 
 
 var rawData = [0,0,0,0,0,0,0,0];

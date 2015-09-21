@@ -1,5 +1,5 @@
 //This tells Myo.js to create the web sockets needed to communnicate with Myo Connect
-Myo.connect();
+Myo.connect('com.myojs.deviceGraphs');
 
 Myo.on('gyroscope', function(quant){
 	updateGraph(quant);

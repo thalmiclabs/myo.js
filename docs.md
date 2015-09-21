@@ -4,18 +4,18 @@
 
 ## myo core
 
-| name | call | description |
+| name                 | call                               | description |
 | --- | --- | --- |
-| **myos** | `Myo.myos`| An array containing the created Myo instances when a Myo pairs with Myo Connect |
-| **create** | `Myo.create(), Myo.create(data)` | Creates and returns a new Myo instance. `data` can be an object which will be merged onto the instance. This command is generally not needed, as Myo.js will create instances for every paired Myo on your computer automatically.
-| **on** | `Myo.on(event, callback)` | Creates a global listener for each Myo instance for the given event. The `callback`'s context will be the Myo instance. |
-| **off** | `Myo.off(eventName)` | Removes a create global listener. |
-| **trigger** | `Myo.trigger(eventName)` | Triggers a create global event which all myos within the `Myo.myos` array will respond to. |
+| **myos**             | `Myo.myos`                         | An array containing the created Myo instances when a Myo pairs with Myo Connect |
+| **create**           | `Myo.create(), Myo.create(data)`   | Creates and returns a new Myo instance. `data` can be an object which will be merged onto the instance. This command is generally not needed, as Myo.js will create instances for every paired Myo on your computer automatically.
+| **on**               | `Myo.on(event, callback)`          | Creates a global listener for each Myo instance for the given event. The `callback`'s context will be the Myo instance. |
+| **off**              | `Myo.off(eventName)`               | Removes a create global listener. |
+| **trigger**          | `Myo.trigger(eventName)`           | Triggers a create global event which all myos within the `Myo.myos` array will respond to. |
 | **setLockingPolicy** | `Myo.setLockingPolicy(policyType)` | Sets the locking policy in Myo Connect. Can either be `"standard"` or `"none"`. Standard will automatically lock the Myo after a while, while None will constantly stream events regardless of lock state. |
-| **connect** | `Myo.connect()` | Creates web socket and sets up the message listener. |
-| **disconnect** | `Myo.disconnect()` | Closes the web socket. |
-| **onError** | `Myo.onError` | `Myo.onError` is triggered whenever Myo.js can't establish a connection to Myo Connect. This could be that it's not running, or that your API version is out of date. You can override this function with a function of your choice. |
-| **methods** | `Myo.methods` | `methods` is an object of functions that will be added to each myo instance when it is created. If you are making an add-on you may want to add your own functions to this object. |
+| **connect**          | `Myo.connect(appId)`               | Creates web socket and sets up the message listener. |
+| **disconnect**       | `Myo.disconnect()`                 | Closes the web socket. |
+| **onError**          | `Myo.onError`                      | `Myo.onError` is triggered whenever Myo.js can't establish a connection to Myo Connect. This could be that it's not running, or that your API version is out of date. You can override this function with a function of your choice. |
+| **methods**          | `Myo.methods`                      | `methods` is an object of functions that will be added to each myo instance when it is created. If you are making an add-on you may want to add your own functions to this object. |
 
 #### core extended examples
 
@@ -43,7 +43,7 @@ Of course, declaration of parameters are optional in callbacks.
 Myo.methods.helloWorld = function(){
   console.log('Hello ' + this.name);
 }
-Myo.connect();
+Myo.connect('com.stolksdorf.myAwesomeApp');
 Myo.myos[0].helloWorld();
 ```
 

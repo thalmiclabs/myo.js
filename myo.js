@@ -11,6 +11,7 @@
 		defaults : {
 			api_version : 3,
 			socket_url  : "ws://127.0.0.1:10138/myo/",
+			app_id      : 'com.myojs.default'
 		},
 		lockingPolicy : 'standard',
 		events : [],
@@ -41,8 +42,11 @@
 			return Myo;
 		},
 
-		connect : function(){
-			Myo.socket = new Socket(Myo.defaults.socket_url + Myo.defaults.api_version);
+		connect : function(appId){
+			if(appId){
+				Myo.defaults.app_id = appId;
+			}
+			Myo.socket = new Socket(Myo.defaults.socket_url + Myo.defaults.api_version + '?appid=' + Myo.defaults.app_id);
 			Myo.socket.onmessage = Myo.handleMessage;
 			Myo.socket.onopen = Myo.trigger.bind(Myo, 'ready');
 			Myo.socket.onclose = Myo.trigger.bind(Myo, 'socket_closed');
@@ -91,7 +95,6 @@
 				direction       : undefined,
 				warmupState     : undefined,
 				orientationOffset : {x : 0,y : 0,z : 0,w : 1},
-				lastQuant       : {x : 0,y : 0,z : 0,w : 1},
 				events : [],
 			}, props || {});
 			return utils.merge(Object.create(Myo.methods), myoProps);

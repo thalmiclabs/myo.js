@@ -19,7 +19,7 @@ You'll need a [Myo](http://myo.com) and [Myo Connect](https://developer.thalmic.
 	var Myo = require('myo');
 
 	//Start talking with Myo Connect
-	Myo.connect();
+	Myo.connect('com.stolksdorf.myAwesomeApp');
 
 	Myo.on('fist', function(){
 		console.log('Hello Myo!');

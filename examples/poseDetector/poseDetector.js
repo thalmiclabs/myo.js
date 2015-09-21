@@ -1,4 +1,4 @@
-Myo.connect();
+Myo.connect('com.myojs.poseDetector');
 
 Myo.on('status', function(data){
 	$('.events').prepend(JSON.stringify(data, null, 2));
