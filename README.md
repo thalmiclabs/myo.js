@@ -5,7 +5,7 @@ Myo javascript bindings.
 
 Myo.js allows you to interact with Thalmic Labs's [Myo Gesture Control Armband](http://myo.com) using websockets. Listen for IMU, EMG, and gesture events, as well as controlling vibration and locking.
 
-# installation
+## installation
 On the browser, just include the `myo.js` file in your project. `Myo` will be global.
 
 On node.js
@@ -13,7 +13,7 @@ On node.js
 	npm install myo
 
 
-# getting started
+## getting started
 You'll need a [Myo](http://myo.com) and [Myo Connect](https://developer.thalmic.com/downloads)
 
 	var Myo = require('myo');
@@ -29,7 +29,7 @@ You'll need a [Myo](http://myo.com) and [Myo Connect](https://developer.thalmic.
 
 
 
-# myo lifecycle
+## myo lifecycle
 A myo can be **paired**, **connected**, and/or **synced**.
 
 A myo is **paired** if it's ever been connected to your computer. You can see a list of paired myos in Myo Connect's armband manager. When `Myo.connect()` is called, Myo.js will create a myo instance for every paired Myo on your computer and store them in `Myo.myos` array.
@@ -41,21 +41,17 @@ A myo is **synced** when the user puts it on and does the sync gesture. At this 
 
 
 
-# documentation
-You can read the full documention [here](docs.md)
-
-# changelog
-Releases are documented in [changelog.md](changelog.md)
-
-# add-ons
-A list of community created addons will go here!
-
-# branding and assets
+## branding and assets
 You can use assets provided in our [branding](https://developer.thalmic.com/branding/) and [UX](https://developer.thalmic.com/ux/) guidelines.
 
-# thanks
-Thanks to [stolksdorf](https://github.com/stolksdorf) for creating Myo.js
+## documentation
+You can read the full documention in [docs.md](docs.md)
+
+## changelog
+Releases are documented in [changelog.md](changelog.md)
 
 ## license
+The Myo.js project is licensed using the modified BSD license. For more details, please see [LICENSE.txt](LICENSE.txt).
 
-The Myo.js project is licensed using the modified BSD license. For more details, please see LICENSE.txt.
+### thanks
+Thanks to [stolksdorf](https://github.com/stolksdorf) for creating Myo.js
