@@ -54,7 +54,7 @@ Myo.myos[0].helloWorld();
 | **batteryLevel** | `Myo.batteryLevel` | Stores the last recorded battery level from the device. Range from 0 to 100. |
 | **connected** | `Myo.connected` | Stores a boolean on whether the Myo is currently connected. |
 | **connectIndex** |`Myo.connectIndex ` | This index is used to listen and send specific messages to Myo Connect. |
-| **connectVerion** | `Myo.connectVerion` | Stores the version of Myo Connect. |
+| **connectVersion** | `Myo.connectVersion` | Stores the version of Myo Connect. |
 | **direction** | `Myo.direction ` | Stores the direction that the User is wearing the Myo. Can either be `"toward_elbow"` or `"toward_wrist"`, referencing the Thalmic logo on the device. |
 | **lastIMU** | `Myo.lastIMU` | Stores the last IMU object. Useful when you need to look at changes over time. |
 | **locked** | `Myo.locked` | Stores a boolean on whether the Myo is currently locked. |
