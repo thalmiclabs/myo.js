@@ -60,11 +60,17 @@
 			var data = JSON.parse(msg.data)[1];
 			if(!data.type || typeof(data.myo) === 'undefined') return;
 			if(data.type == 'paired'){
-				Myo.myos.push(Myo.create({
-					macAddress      : data.mac_address,
-					name            : data.name,
-					connectIndex    : data.myo
-				}));
+				var exists = Myo.myos.some(function(myo) {
+					return myo.macAddress == data.mac_address;
+				});
+
+				if (!exists) {
+					Myo.myos.push(Myo.create({
+						macAddress      : data.mac_address,
+						name            : data.name,
+						connectIndex    : data.myo
+					}));
+				}
 			}
 
 			Myo.myos.map(function(myo){
