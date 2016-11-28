@@ -1,6 +1,6 @@
 {
   "name": "myo",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Javascript bindings for Myo",
   "main": "myo.js",
   "dependencies": {

@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.1.2
+- Fixed pairing to avoid duplicated myo on reconnect (Thanks u/Ucodia!)
+- Updated `ws` lib to work with node v6 and higher (Thanks u/JoshuaJi!)
+
 ### 2.1.0 - Monday, 21/09/2015
 * Added an appId query param to the web socket. This can be set through the `Myo.connect(APP_ID)` command and is stored at `Myo.defaults.app_id`. This app id is to help Thalmic track usage stats from different apps and to help us a bit with reporting if there's issues. If no appId is provided it will default to `com.myojs.default`, so this change won't break current applications using Myo.js
 
