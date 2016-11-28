@@ -4,7 +4,7 @@
   "description": "Javascript bindings for Myo",
   "main": "myo.js",
   "dependencies": {
-    "ws": "^0.4.32"
+    "ws": "^1.1.1"
   },
   "devDependencies": {},
   "scripts": {
