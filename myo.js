@@ -1,13 +1,11 @@
 (function(){
 	var Socket, myoList = {};
-	if(typeof window === 'undefined'){
-		Socket = require('ws');
-	}else {
-		if(!("WebSocket" in window)) console.error('Myo.js : Sockets not supported :(');
+	if(typeof window !== 'undefined'){
+		if(!("WebSocket" in window)) throw "MYO: Websockets are not supported by your browser :(";
 		Socket = WebSocket;
 	}
 
-	Myo = {
+	var Myo = {
 		defaults : {
 			api_version : 3,
 			socket_url  : "ws://127.0.0.1:10138/myo/",
@@ -18,9 +16,8 @@
 		myos : [],
 
 		onError : function(){
-			throw 'Myo.js had an error with the socket. Myo Connect might not be running. If it is, double check the API version.';
+			throw 'MYO: Error with the socket connection. Myo Connect might not be running. If it is, double check the API version.';
 		},
-
 		setLockingPolicy: function(policy) {
 			Myo.socket.send(JSON.stringify(['command',{
 				"command": "set_locking_policy",
@@ -42,7 +39,9 @@
 			return Myo;
 		},
 
-		connect : function(appId){
+		connect : function(appId, socketLib){
+			if(socketLib) Socket = socketLib;
+			if(!Socket) throw "MYO: Must provide a socket library to use. Try 'Myo.setSocketLib('id', require('ws'))' before you connect.";
 			if(appId){
 				Myo.defaults.app_id = appId;
 			}
@@ -341,7 +340,7 @@
 			return Math.round(((rssi-min)*100)/(max-min) * 100)/100;
 		},
 	};
-
+	if(typeof window !== 'undefined') window.Myo = Myo;
 	if(typeof module !== 'undefined') module.exports = Myo;
 })();
 
