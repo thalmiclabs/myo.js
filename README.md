@@ -10,23 +10,35 @@ On the browser, just include the `myo.js` file in your project. `Myo` will be gl
 
 On node.js
 
-	npm install myo
+	npm install myo ws
 
 
 ## getting started
 You'll need a [Myo](http://myo.com) and [Myo Connect](https://developer.thalmic.com/downloads)
 
-	var Myo = require('myo');
+##### Client-side
 
-	//Start talking with Myo Connect
-	Myo.connect('com.stolksdorf.myAwesomeApp');
+```javascript
+Myo.connect('com.stolksdorf.myAwesomeApp');
 
-	Myo.on('fist', function(){
-		console.log('Hello Myo!');
-		this.vibrate();
-	});
+Myo.on('fist', function(){
+	console.log('Hello Myo!');
+	this.vibrate();
+});
+```
 
+##### Node
 
+```javascript
+var Myo = require('myo');
+
+Myo.connect('com.stolksdorf.myAwesomeApp', require('ws'));
+
+Myo.on('fist', function(){
+	console.log('Hello Myo!');
+	this.vibrate();
+});
+```
 
 
 ## myo lifecycle

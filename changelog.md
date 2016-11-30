@@ -1,5 +1,11 @@
 # Changelog
 
+### 3.0.0 - Wednesday, 30/11/2016
+- There were issues with Browserify-ing the library, specifically in regards to the `ws` lib
+- Removing the explicit dependacy on the `ws` lib, since it's not needed if the library is being used client-side
+- If developing in node, you must pass in `ws` as a second parameter on `myo.connect`
+- Added warnings explaining how to solve them if the lib is not provided.
+
 ### 2.1.2
 - Fixed pairing to avoid duplicated myo on reconnect (Thanks u/Ucodia!)
 - Updated `ws` lib to work with node v6 and higher (Thanks u/JoshuaJi!)
