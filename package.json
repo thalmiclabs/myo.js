@@ -1,6 +1,6 @@
 {
   "name": "myo",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Javascript bindings for Myo",
   "main": "myo.js",
   "dependencies": {},
@@ -18,7 +18,7 @@
     "myojs"
   ],
   "author": "thalmiclabs",
-  "license": "BSD-3",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/thalmiclabs/myo.js/issues"
   },

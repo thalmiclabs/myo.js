@@ -1,6 +1,8 @@
 # myo.js
 [![NPM](https://nodei.co/npm/myo.png)](https://nodei.co/npm/myo/)
 
+> North (formerly Thalmic Labs), the creator of the Myo armband, was acquired by Google in June 2020. Myo sales ended in October 2018 and Myo software, hardware and SDKs are no longer available or supported. [Learn more.](https://support.getmyo.com)
+
 Myo javascript bindings.
 
 Myo.js allows you to interact with Thalmic Labs's [Myo Gesture Control Armband](http://myo.com) using websockets. Listen for IMU, EMG, and gesture events, as well as controlling vibration and locking.
@@ -61,9 +63,6 @@ You can read the full documention in [docs.md](docs.md)
 
 ## changelog
 Releases are documented in [changelog.md](changelog.md)
-
-## license
-The Myo.js project is licensed using the modified BSD license. For more details, please see [LICENSE.txt](LICENSE.txt).
 
 ### thanks
 Thanks to [stolksdorf](https://github.com/stolksdorf) for creating Myo.js
